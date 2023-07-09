@@ -8,8 +8,8 @@ type User struct {
 }
 
 type UserService interface {
-	Register(ctx context.Context, user User, uniqueLoginErrorChan chan error) error
-	CompareHashAndPassword(ctx context.Context, user User) (bool, error)
+	Register(ctx context.Context, user *User, uniqueLoginErrorChan chan error) error
+	CompareHashAndPassword(ctx context.Context, user *User) (bool, error)
 }
 
 type UserRepository interface {

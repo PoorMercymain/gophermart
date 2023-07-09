@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/PoorMercymain/gophermart/internal/handler"
+	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/repository"
 	"github.com/PoorMercymain/gophermart/internal/service"
 	"github.com/PoorMercymain/gophermart/pkg/util"
@@ -46,8 +48,9 @@ func router() *echo.Echo {
 	us := service.NewUser(ur)
 	uh := handler.NewUser(us)
 
-	e.POST("/api/user/register", uh.Register)
-	e.POST("/api/user/login", uh.Authenticate)
+	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
+	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
+	e.GET("/test", func (c echo.Context) error {return c.String(http.StatusOK, "Hello, World!")}, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	return e
 }
 

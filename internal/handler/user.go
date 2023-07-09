@@ -44,7 +44,7 @@ func (h *user) Register(c echo.Context) error {
 
 	uniqueLoginErrorChan := make(chan error, 1)
 
-	err := h.srv.Register(c.Request().Context(), user, uniqueLoginErrorChan)
+	err := h.srv.Register(c.Request().Context(), &user, uniqueLoginErrorChan)
 	if err != nil {
 		select {
 		case <-uniqueLoginErrorChan:
@@ -91,7 +91,7 @@ func (h *user) Authenticate(c echo.Context) error {
 		return nil
 	}
 
-	validPair, _ := h.srv.CompareHashAndPassword(c.Request().Context(), user)
+	validPair, _ := h.srv.CompareHashAndPassword(c.Request().Context(), &user)
 	if validPair {
 		jwtStr, err := CreateJWTString(user.Login + " " + user.Password)
 		if err != nil {
