@@ -1,0 +1,9 @@
+-- +goose Up
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS orders(num INTEGER PRIMARY KEY, uploaded_at TIMESTAMP, stat TEXT, username TEXT);
+COMMIT;
+
+-- +goose Down
+BEGIN TRANSACTION;
+DROP TABLE IF EXISTS orders;
+COMMIT;

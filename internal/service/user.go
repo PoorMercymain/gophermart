@@ -41,3 +41,8 @@ func (s *user) CompareHashAndPassword(ctx context.Context, user *domain.User) (b
 	user.Password = hash
 	return true, nil
 }
+
+func (s *user) AddOrder(ctx context.Context, orderNumber int) error {
+	//TODO: add Luhn check
+	return s.repo.AddOrder(ctx, orderNumber)
+}

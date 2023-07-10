@@ -1,8 +1,12 @@
 package handler
 
 import (
+	"bufio"
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
@@ -110,6 +114,38 @@ func (h *user) Authenticate(c echo.Context) error {
 	return nil
 }
 
+func (h *user) AddOrder(c echo.Context) error {
+	if !IsPlaintextContentTypeCorrect(c.Request()) {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
+	}
+
+	scanner := bufio.NewScanner(c.Request().Body)
+	scanner.Scan()
+	defer c.Request().Body.Close()
+
+	orderNumber, err := strconv.Atoi(scanner.Text())
+	if err != nil {
+		c.Response().WriteHeader(http.StatusUnprocessableEntity)
+		return err
+	}
+
+	// TODO: add goroutine to send req to accrual
+	err = h.srv.AddOrder(c.Request().Context(), orderNumber)
+	if errors.Is(err, domain.ErrorAlreadyRegistered) {
+		c.Response().WriteHeader(http.StatusOK)
+		return err
+	} else if errors.Is(err, domain.ErrorAlreadyRegisteredByAnotherUser) {
+		c.Response().WriteHeader(http.StatusConflict)
+		return err
+	} else if err != nil {
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+	c.Response().WriteHeader(http.StatusAccepted)
+	return nil
+}
+
 func IsJSONContentTypeCorrect(r *http.Request) bool {
 	if len(r.Header.Values("Content-Type")) == 0 {
 		return false
@@ -117,6 +153,23 @@ func IsJSONContentTypeCorrect(r *http.Request) bool {
 
 	for contentTypeCurrentIndex, contentType := range r.Header.Values("Content-Type") {
 		if contentType == "application/json" {
+			break
+		}
+		if contentTypeCurrentIndex == len(r.Header.Values("Content-Type"))-1 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func IsPlaintextContentTypeCorrect(r *http.Request) bool {
+	if len(r.Header.Values("Content-Type")) == 0 {
+		return false
+	}
+
+	for contentTypeCurrentIndex, contentType := range r.Header.Values("Content-Type") {
+		if strings.HasPrefix(contentType, "text/plain") {
 			break
 		}
 		if contentTypeCurrentIndex == len(r.Header.Values("Content-Type"))-1 {

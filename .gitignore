@@ -24,8 +24,11 @@ vendor/
 .idea
 .vscode
 
-# MongoDB files
+# MongoDB data
 gophermart-mongo/
+
+# Postgres data
+gophermart-postgres/
 
 # Mocks
 mocks/

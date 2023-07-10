@@ -26,12 +26,14 @@ func testRouter(t *testing.T) *echo.Echo{
 	mockRepo := mocks.NewMockUserRepository(ctrl)
 	mockRepo.EXPECT().GetPasswordHash(gomock.Any(), gomock.Any()).Return("", nil).AnyTimes()
 	mockRepo.EXPECT().Register(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	mockRepo.EXPECT().AddOrder(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 
 	us := service.NewUser(mockRepo)
 	uh := handler.NewUser(us)
 
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
+	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader())
 
 	return e
 }
@@ -40,6 +42,10 @@ func request(t *testing.T, ts *httptest.Server, code int, method, body, endpoint
 	req, err := http.NewRequest(method, ts.URL + endpoint, strings.NewReader(body))
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
+
+	if endpoint == "/api/user/orders" {
+		req.Header.Set("Content-Type", "text/plain")
+	}
 
 	resp, err := ts.Client().Do(req)
 	if err != http.ErrUseLastResponse {
@@ -65,6 +71,7 @@ func TestRouter(t *testing.T) {
 	}{
 		{"/api/user/register", "POST", http.StatusOK, "{\"login\":\"test\",\"password\":\"test\"}"},
 		{"/api/user/login", "POST", http.StatusUnauthorized, "{\"login\":\"test\",\"password\":\"testing\"}"},
+		{"/api/user/orders", "POST", http.StatusAccepted, "123456"},
 	}
 
 	for _, testCase := range testTable {

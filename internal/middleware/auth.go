@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strings"
@@ -43,6 +44,9 @@ func CheckAuth(ur domain.UserRepository) echo.MiddlewareFunc {
 				return errors.New("password isn`t correct")
 			}
 
+			ctx := context.WithValue(c.Request().Context(), domain.Key("login"), user.Login)
+
+			c.SetRequest(c.Request().WithContext(ctx))
 			return next(c)
 		}
 	}
