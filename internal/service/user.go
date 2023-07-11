@@ -46,3 +46,7 @@ func (s *user) AddOrder(ctx context.Context, orderNumber int) error {
 	//TODO: add Luhn check
 	return s.repo.AddOrder(ctx, orderNumber)
 }
+
+func (s *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
+	return s.repo.ReadOrders(ctx)
+}

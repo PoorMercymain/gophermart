@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"net/http"
@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/PoorMercymain/gophermart/internal/handler"
 	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/service"
 	"github.com/PoorMercymain/gophermart/internal/domain/mocks"
@@ -27,13 +26,15 @@ func testRouter(t *testing.T) *echo.Echo{
 	mockRepo.EXPECT().GetPasswordHash(gomock.Any(), gomock.Any()).Return("", nil).AnyTimes()
 	mockRepo.EXPECT().Register(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	mockRepo.EXPECT().AddOrder(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	mockRepo.EXPECT().ReadOrders(gomock.Any()).Return(nil, nil).AnyTimes()
 
 	us := service.NewUser(mockRepo)
-	uh := handler.NewUser(us)
+	uh := NewUser(us)
 
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
 	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader())
+	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader())
 
 	return e
 }
@@ -69,9 +70,10 @@ func TestRouter(t *testing.T) {
 		code      int
 		body      string
 	}{
-		{"/api/user/register", "POST", http.StatusOK, "{\"login\":\"test\",\"password\":\"test\"}"},
-		{"/api/user/login", "POST", http.StatusUnauthorized, "{\"login\":\"test\",\"password\":\"testing\"}"},
-		{"/api/user/orders", "POST", http.StatusAccepted, "123456"},
+		{"/api/user/register", http.MethodPost, http.StatusOK, "{\"login\":\"test\",\"password\":\"test\"}"},
+		{"/api/user/login", http.MethodPost, http.StatusUnauthorized, "{\"login\":\"test\",\"password\":\"testing\"}"},
+		{"/api/user/orders", http.MethodPost, http.StatusAccepted, "123456"},
+		{"/api/user/orders", http.MethodGet, http.StatusNoContent, ""},
 	}
 
 	for _, testCase := range testTable {

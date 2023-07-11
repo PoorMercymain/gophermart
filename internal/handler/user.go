@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -143,6 +144,31 @@ func (h *user) AddOrder(c echo.Context) error {
 		return err
 	}
 	c.Response().WriteHeader(http.StatusAccepted)
+	return nil
+}
+
+func (h *user) ReadOrders(c echo.Context) error {
+	orders, err :=  h.srv.ReadOrders(c.Request().Context())
+	if err != nil {
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	if len(orders) == 0 {
+		c.Response().WriteHeader(http.StatusNoContent)
+		return nil
+	}
+
+	var ordersBytes []byte
+	buf := bytes.NewBuffer(ordersBytes)
+	err = json.NewEncoder(buf).Encode(orders)
+	if err != nil {
+		util.GetLogger().Errorln(err)
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+	c.Response().Header().Set("Content-Type", "application/json")
+	c.Response().Write(buf.Bytes())
 	return nil
 }
 

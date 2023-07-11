@@ -8,10 +8,10 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/domain"
 	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type user struct {
@@ -93,4 +93,30 @@ func (r *user) AddOrder(ctx context.Context, orderNumber int) error {
 	}
 
 	return tx.Commit(ctx)
+}
+
+func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	//TODO: add limit
+	rows, err := conn.Query(ctx, "SELECT num, stat, uploaded_at FROM orders WHERE username = $1 ORDER BY uploaded_at DESC", ctx.Value(domain.Key("login")))
+	if err != nil {
+		util.LogInfoln(err)
+		return nil, err
+	}
+
+	var order domain.Order
+	orders := make([]domain.Order, 0)
+
+	for rows.Next() {
+		rows.Scan(&order.Number, &order.Status, &order.UploadedAt) // TODO: need to set actual accrual here
+		order.UploadedAtString = order.UploadedAt.Format(time.RFC3339)
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }
