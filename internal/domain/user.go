@@ -13,6 +13,7 @@ type UserService interface {
 	AddOrder(ctx context.Context, orderNumber int) error
 }
 
+//go:generate mockgen -destination=mocks/repo_mock.gen.go -package=mocks . UserRepository
 type UserRepository interface {
 	Register(ctx context.Context, user User, uniqueLoginErrorChan chan error) error
 	GetPasswordHash(ctx context.Context, login string) (string, error)

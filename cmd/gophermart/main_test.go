@@ -9,7 +9,7 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/handler"
 	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/service"
-	"github.com/PoorMercymain/gophermart/mocks"
+	"github.com/PoorMercymain/gophermart/internal/domain/mocks"
 	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
