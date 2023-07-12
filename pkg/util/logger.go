@@ -2,7 +2,6 @@ package util
 
 import (
 	"errors"
-	"fmt"
 
 	"go.uber.org/zap"
 )
@@ -23,11 +22,11 @@ func GetLogger() *zap.SugaredLogger {
 	return instance
 }
 
-func LogInfoln(log ...interface{}) {
+func LogInfoln(log ...interface{}) error {
 	if instance == nil {
-		fmt.Println(errors.New("instance of logger is nil (may be it was not initialized?)").Error())
-		return
+		return errors.New("instance of logger is nil (may be it was not initialized?)")
 	}
 
 	instance.Infoln(log)
+	return nil
 }
