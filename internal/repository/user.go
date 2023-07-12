@@ -14,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// TODO: add mutexes
 type user struct {
 	mongoCollection *mongo.Collection
 	pgxPool         *pgxpool.Pool
