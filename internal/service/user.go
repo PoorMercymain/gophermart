@@ -50,3 +50,7 @@ func (s *user) AddOrder(ctx context.Context, orderNumber int) error {
 func (s *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 	return s.repo.ReadOrders(ctx)
 }
+
+func (s *user) ReadBalance(ctx context.Context) (domain.Balance, error) {
+	return s.repo.ReadBalance(ctx)
+}

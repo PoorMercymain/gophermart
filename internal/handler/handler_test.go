@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/PoorMercymain/gophermart/internal/domain"
 	"github.com/PoorMercymain/gophermart/internal/domain/mocks"
 	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/service"
@@ -27,6 +28,7 @@ func testRouter(t *testing.T) *echo.Echo {
 	mockRepo.EXPECT().Register(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	mockRepo.EXPECT().AddOrder(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	mockRepo.EXPECT().ReadOrders(gomock.Any()).Return(nil, nil).AnyTimes()
+	mockRepo.EXPECT().ReadBalance(gomock.Any()).Return(domain.Balance{}, nil).AnyTimes()
 
 	us := service.NewUser(mockRepo)
 	uh := NewUser(us)

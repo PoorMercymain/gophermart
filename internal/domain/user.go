@@ -12,6 +12,7 @@ type UserService interface {
 	CompareHashAndPassword(ctx context.Context, user *User) (bool, error)
 	AddOrder(ctx context.Context, orderNumber int) error
 	ReadOrders(ctx context.Context) ([]Order, error)
+	ReadBalance(ctx context.Context) (Balance, error)
 }
 
 //go:generate mockgen -destination=mocks/repo_mock.gen.go -package=mocks . UserRepository
@@ -20,4 +21,5 @@ type UserRepository interface {
 	GetPasswordHash(ctx context.Context, login string) (string, error)
 	AddOrder(ctx context.Context, orderNumber int) error
 	ReadOrders(ctx context.Context) ([]Order, error)
+	ReadBalance(ctx context.Context) (Balance, error)
 }

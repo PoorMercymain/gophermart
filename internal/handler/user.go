@@ -172,6 +172,18 @@ func (h *user) ReadOrders(c echo.Context) error {
 	return nil
 }
 
+func (h *user) ReadBalance(c echo.Context) error {
+	balance, err := h.srv.ReadBalance(c.Request().Context())
+	if err != nil {
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	c.Response().Header().Set("Content-Type", "application/json")
+	c.Response().Write(balance.Marshal())
+	return nil
+}
+
 func IsJSONContentTypeCorrect(r *http.Request) bool {
 	if len(r.Header.Values("Content-Type")) == 0 {
 		return false

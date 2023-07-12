@@ -24,6 +24,7 @@ func NewUser(mongoCollection *mongo.Collection, pgxPool *pgxpool.Pool) *user {
 	return &user{mongoCollection: mongoCollection, pgxPool: pgxPool}
 }
 
+// TODO: add setting balance if registered
 func (r *user) Register(ctx context.Context, user domain.User, uniqueLoginErrorChan chan error) error {
 	_, err := r.mongoCollection.InsertOne(ctx, user)
 	if err != nil {
@@ -120,4 +121,18 @@ func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 	}
 
 	return orders, nil
+}
+
+func (r *user) ReadBalance(ctx context.Context) (domain.Balance, error) {
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return domain.Balance{}, err
+	}
+	defer conn.Release()
+
+	var balance domain.Balance
+
+	conn.QueryRow(ctx, "SELECT balance, withdrawn FROM balances WHERE username = $1", ctx.Value(domain.Key("login"))).Scan(&balance.Balance, &balance.Withdrawn)
+
+	return balance, nil
 }
