@@ -98,6 +98,7 @@ func router(pool *pgxpool.Pool) *echo.Echo {
 	} else {
 		util.LogInfoln("норм")
 	}
+
 	us := service.NewUser(ur)
 	uh := handler.NewUser(us)
 
