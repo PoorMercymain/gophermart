@@ -31,5 +31,4 @@ gophermart-mongo/
 gophermart-postgres/
 
 # Mocks
-# temporary commented
-# internal/domain/mocks
+internal/domain/mocks
