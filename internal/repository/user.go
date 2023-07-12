@@ -16,7 +16,7 @@ import (
 
 type user struct {
 	mongoCollection *mongo.Collection
-	pgxPool *pgxpool.Pool
+	pgxPool         *pgxpool.Pool
 }
 
 func NewUser(mongoCollection *mongo.Collection, pgxPool *pgxpool.Pool) *user {

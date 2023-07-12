@@ -148,7 +148,7 @@ func (h *user) AddOrder(c echo.Context) error {
 }
 
 func (h *user) ReadOrders(c echo.Context) error {
-	orders, err :=  h.srv.ReadOrders(c.Request().Context())
+	orders, err := h.srv.ReadOrders(c.Request().Context())
 	if err != nil {
 		c.Response().WriteHeader(http.StatusInternalServerError)
 		return err

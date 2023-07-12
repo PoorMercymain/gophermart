@@ -13,12 +13,12 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/service"
 	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo"
 	"github.com/pressly/goose/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func NewPG(DSN string) (*pgxpool.Pool, error) {
@@ -105,7 +105,7 @@ func router(pool *pgxpool.Pool) *echo.Echo {
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
 	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader(), middleware.CheckAuth(ur))
-	e.GET("/test", func (c echo.Context) error {return c.String(http.StatusOK, "Hello, World!")}, middleware.UseGzipReader(), middleware.CheckAuth(ur))
+	e.GET("/test", func(c echo.Context) error { return c.String(http.StatusOK, "Hello, World!") }, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	return e
 }
 

@@ -6,16 +6,16 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/PoorMercymain/gophermart/internal/domain/mocks"
 	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/service"
-	"github.com/PoorMercymain/gophermart/internal/domain/mocks"
 	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/require"
 )
 
-func testRouter(t *testing.T) *echo.Echo{
+func testRouter(t *testing.T) *echo.Echo {
 	e := echo.New()
 	util.InitLogger()
 
@@ -40,7 +40,7 @@ func testRouter(t *testing.T) *echo.Echo{
 }
 
 func request(t *testing.T, ts *httptest.Server, code int, method, body, endpoint string) *http.Response {
-	req, err := http.NewRequest(method, ts.URL + endpoint, strings.NewReader(body))
+	req, err := http.NewRequest(method, ts.URL+endpoint, strings.NewReader(body))
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -65,10 +65,10 @@ func TestRouter(t *testing.T) {
 	defer ts.Close()
 
 	var testTable = []struct {
-		endpoint  string
-		method    string
-		code      int
-		body      string
+		endpoint string
+		method   string
+		code     int
+		body     string
 	}{
 		{"/api/user/register", http.MethodPost, http.StatusOK, "{\"login\":\"test\",\"password\":\"test\"}"},
 		{"/api/user/login", http.MethodPost, http.StatusUnauthorized, "{\"login\":\"test\",\"password\":\"testing\"}"},
