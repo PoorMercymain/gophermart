@@ -74,7 +74,7 @@ func (r *user) Ping(ctx context.Context) error {
 	return nil
 }
 
-func (r *user) AddOrder(ctx context.Context, orderNumber int) error {
+func (r *user) AddOrder(ctx context.Context, orderNumber int64) error {
 	conn, err := r.pgxPool.Acquire(ctx)
 	if err != nil {
 		return err
@@ -105,6 +105,7 @@ func (r *user) AddOrder(ctx context.Context, orderNumber int) error {
 			util.LogInfoln(domain.ErrorAlreadyRegisteredByAnotherUser.Error())
 			return domain.ErrorAlreadyRegisteredByAnotherUser
 		}
+		util.GetLogger().Infoln(err)
 		return err
 	}
 
@@ -119,7 +120,7 @@ func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 	defer conn.Release()
 
 	//TODO: add limit
-	rows, err := conn.Query(ctx, "SELECT num, stat, uploaded_at FROM orders WHERE username = $1 ORDER BY uploaded_at DESC", ctx.Value(domain.Key("login")))
+	rows, err := conn.Query(ctx, "SELECT num, stat, uploaded_at FROM orders WHERE username = $1 ORDER BY uploaded_at DESC LIMIT 15 OFFSET $2", ctx.Value(domain.Key("login")), ((ctx.Value(domain.Key("page")).(int))-1)*15)
 	if err != nil {
 		util.LogInfoln(err)
 		return nil, err

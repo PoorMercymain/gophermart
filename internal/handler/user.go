@@ -3,6 +3,7 @@ package handler
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -125,7 +126,7 @@ func (h *user) AddOrder(c echo.Context) error {
 	scanner.Scan()
 	defer c.Request().Body.Close()
 
-	orderNumber, err := strconv.Atoi(scanner.Text())
+	orderNumber, err := strconv.ParseInt(scanner.Text(), 10, 64)
 	if err != nil {
 		c.Response().WriteHeader(http.StatusUnprocessableEntity)
 		return err
@@ -141,6 +142,7 @@ func (h *user) AddOrder(c echo.Context) error {
 		return err
 	} else if err != nil {
 		c.Response().WriteHeader(http.StatusInternalServerError)
+		util.GetLogger().Infoln(err)
 		return err
 	}
 	c.Response().WriteHeader(http.StatusAccepted)
@@ -148,6 +150,18 @@ func (h *user) AddOrder(c echo.Context) error {
 }
 
 func (h *user) ReadOrders(c echo.Context) error {
+	page, err := strconv.Atoi(c.Request().Header.Get("page"))
+	if err != nil && c.Request().Header.Get("page") != "" {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	if c.Request().Header.Get("page") == "" || page < 1 {
+		page = 1
+	}
+
+	ctx := context.WithValue(c.Request().Context(), domain.Key("page"), page)
+	c.SetRequest(c.Request().WithContext(ctx))
+
 	orders, err := h.srv.ReadOrders(c.Request().Context())
 	if err != nil {
 		c.Response().WriteHeader(http.StatusInternalServerError)

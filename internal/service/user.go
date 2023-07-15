@@ -42,7 +42,7 @@ func (s *user) CompareHashAndPassword(ctx context.Context, user *domain.User) (b
 	return true, nil
 }
 
-func (s *user) AddOrder(ctx context.Context, orderNumber int) error {
+func (s *user) AddOrder(ctx context.Context, orderNumber int64) error {
 	//TODO: add Luhn check
 	return s.repo.AddOrder(ctx, orderNumber)
 }
