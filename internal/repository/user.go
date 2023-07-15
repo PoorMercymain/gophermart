@@ -119,7 +119,6 @@ func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 	}
 	defer conn.Release()
 
-	//TODO: add limit
 	rows, err := conn.Query(ctx, "SELECT num, stat, uploaded_at FROM orders WHERE username = $1 ORDER BY uploaded_at DESC LIMIT 15 OFFSET $2", ctx.Value(domain.Key("login")), ((ctx.Value(domain.Key("page")).(int))-1)*15)
 	if err != nil {
 		util.LogInfoln(err)
