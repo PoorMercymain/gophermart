@@ -107,6 +107,7 @@ func router(pool *pgxpool.Pool) *echo.Echo {
 	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader(), middleware.CheckAuth(ur))
+	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/test", func(c echo.Context) error { return c.String(http.StatusOK, "Hello, World!") }, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	return e
 }

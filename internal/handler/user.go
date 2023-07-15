@@ -149,6 +149,7 @@ func (h *user) AddOrder(c echo.Context) error {
 	return nil
 }
 
+// TODO: order number should be a string, not integer
 func (h *user) ReadOrders(c echo.Context) error {
 	page, err := strconv.Atoi(c.Request().Header.Get("page"))
 	if err != nil && c.Request().Header.Get("page") != "" {
@@ -195,6 +196,37 @@ func (h *user) ReadBalance(c echo.Context) error {
 
 	c.Response().Header().Set("Content-Type", "application/json")
 	c.Response().Write(balance.Marshal())
+	return nil
+}
+
+func (h *user) AddWithdrawal(c echo.Context) error {
+	if !IsJSONContentTypeCorrect(c.Request()) {
+		util.GetLogger().Infoln("мда")
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
+	}
+
+	var withdrawal domain.Withdrawal
+
+	// TODO: return 422 if order number is incorrect
+	if err := json.NewDecoder(c.Request().Body).Decode(&withdrawal); err != nil {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		util.LogInfoln(err)
+		return err
+	}
+	defer c.Request().Body.Close()
+
+	err := h.srv.AddWithdrawal(c.Request().Context(), withdrawal)
+	if err != nil {
+		if errors.Is(err, domain.ErrorNotEnoughPoints) {
+			c.Response().WriteHeader(http.StatusPaymentRequired)
+			return err
+		}
+		util.LogInfoln(err)
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	c.Response().WriteHeader(http.StatusOK)
 	return nil
 }
 

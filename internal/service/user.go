@@ -54,3 +54,31 @@ func (s *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 func (s *user) ReadBalance(ctx context.Context) (domain.Balance, error) {
 	return s.repo.ReadBalance(ctx)
 }
+
+func (s *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) error {
+	balance, err := s.repo.ReadBalance(ctx)
+	if err != nil {
+		return err
+	}
+
+	if balance.Balance < withdrawal.WithdrawalAmount {
+		return domain.ErrorNotEnoughPoints
+	}
+
+	util.GetLogger().Infoln(balance)
+	balance.Balance -= withdrawal.WithdrawalAmount
+	balance.Withdrawn += withdrawal.WithdrawalAmount
+	util.GetLogger().Infoln(withdrawal)
+
+	err = s.repo.WriteBalance(ctx, balance)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.AddWithdrawal(ctx, withdrawal)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

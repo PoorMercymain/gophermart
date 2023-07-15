@@ -150,3 +150,46 @@ func (r *user) ReadBalance(ctx context.Context) (domain.Balance, error) {
 
 	return balance, nil
 }
+
+// TODO: merge writebalance and addwithdrawal to use one transaction
+func (r *user) WriteBalance(ctx context.Context, balance domain.Balance) error {
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, "UPDATE balances SET balance = $1, withdrawn = $2 WHERE username = $3", balance.Balance, balance.Withdrawn, ctx.Value(domain.Key("login")))
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
+
+func (r *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) error {
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, "INSERT INTO withdrawals VALUES($1, $2, $3, $4)", ctx.Value(domain.Key("login")), withdrawal.OrderNumber, withdrawal.WithdrawalAmount, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
