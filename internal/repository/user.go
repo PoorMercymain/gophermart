@@ -24,16 +24,30 @@ func NewUser(mongoCollection *mongo.Collection, pgxPool *pgxpool.Pool) *user {
 	return &user{mongoCollection: mongoCollection, pgxPool: pgxPool}
 }
 
-// TODO: add setting balance if registered
 func (r *user) Register(ctx context.Context, user domain.User, uniqueLoginErrorChan chan error) error {
 	_, err := r.mongoCollection.InsertOne(ctx, user)
 	if err != nil {
 		if mongo.IsDuplicateKeyError(err) {
 			uniqueLoginErrorChan <- err
 			close(uniqueLoginErrorChan)
+			return err
 		}
 	}
-	return err
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	_, err = tx.Exec(ctx, "INSERT INTO balances VALUES($1, $2, $3)", user.Login, 0, 0)
+	if err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func (r *user) GetPasswordHash(ctx context.Context, login string) (string, error) {
