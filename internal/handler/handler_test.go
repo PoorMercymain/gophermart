@@ -29,7 +29,6 @@ func testRouter(t *testing.T) *echo.Echo {
 	mockRepo.EXPECT().AddOrder(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	mockRepo.EXPECT().ReadOrders(gomock.Any()).Return(nil, nil).AnyTimes()
 	mockRepo.EXPECT().ReadBalance(gomock.Any()).Return(domain.Balance{}, nil).AnyTimes()
-	mockRepo.EXPECT().WriteBalance(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	mockRepo.EXPECT().AddWithdrawal(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 
 	us := service.NewUser(mockRepo)
@@ -81,7 +80,7 @@ func TestRouter(t *testing.T) {
 		{"/api/user/orders", http.MethodPost, http.StatusAccepted, "123456"},
 		{"/api/user/orders", http.MethodGet, http.StatusNoContent, ""},
 		{"/api/user/balance", http.MethodGet, http.StatusOK, ""},
-		{"/api/user/balance/withdraw", http.MethodPost, http.StatusOK, "{\"order\": 123, \"sum\": 0}"},
+		{"/api/user/balance/withdraw", http.MethodPost, http.StatusOK, "{\"order\": \"123\", \"sum\": 0}"},
 	}
 
 	for _, testCase := range testTable {

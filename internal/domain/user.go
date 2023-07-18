@@ -10,7 +10,7 @@ type User struct {
 type UserService interface {
 	Register(ctx context.Context, user *User, uniqueLoginErrorChan chan error) error
 	CompareHashAndPassword(ctx context.Context, user *User) (bool, error)
-	AddOrder(ctx context.Context, orderNumber int64) error
+	AddOrder(ctx context.Context, orderNumber string) error
 	ReadOrders(ctx context.Context) ([]Order, error)
 	ReadBalance(ctx context.Context) (Balance, error)
 	AddWithdrawal(ctx context.Context, withdrawal Withdrawal) error
@@ -20,9 +20,8 @@ type UserService interface {
 type UserRepository interface {
 	Register(ctx context.Context, user User, uniqueLoginErrorChan chan error) error
 	GetPasswordHash(ctx context.Context, login string) (string, error)
-	AddOrder(ctx context.Context, orderNumber int64) error
+	AddOrder(ctx context.Context, orderNumber string) error
 	ReadOrders(ctx context.Context) ([]Order, error)
 	ReadBalance(ctx context.Context) (Balance, error)
-	WriteBalance(ctx context.Context, balance Balance) error
 	AddWithdrawal(ctx context.Context, withdrawal Withdrawal) error
 }

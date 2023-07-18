@@ -19,11 +19,11 @@ func NewUser(repo domain.UserRepository) *user {
 func (s *user) Register(ctx context.Context, user *domain.User, uniqueLoginErrorChan chan error) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		util.LogInfoln(user.Password, err)
+		util.GetLogger().Infoln(user.Password, err)
 		return err
 	}
 	user.Password = string(passwordHash)
-	util.LogInfoln("после хэширования", *user)
+	util.GetLogger().Infoln("после хэширования", *user)
 	return s.repo.Register(ctx, *user, uniqueLoginErrorChan)
 }
 
@@ -42,7 +42,7 @@ func (s *user) CompareHashAndPassword(ctx context.Context, user *domain.User) (b
 	return true, nil
 }
 
-func (s *user) AddOrder(ctx context.Context, orderNumber int64) error {
+func (s *user) AddOrder(ctx context.Context, orderNumber string) error {
 	//TODO: add Luhn check
 	return s.repo.AddOrder(ctx, orderNumber)
 }
@@ -56,29 +56,5 @@ func (s *user) ReadBalance(ctx context.Context) (domain.Balance, error) {
 }
 
 func (s *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) error {
-	balance, err := s.repo.ReadBalance(ctx)
-	if err != nil {
-		return err
-	}
-
-	if balance.Balance < withdrawal.WithdrawalAmount {
-		return domain.ErrorNotEnoughPoints
-	}
-
-	util.GetLogger().Infoln(balance)
-	balance.Balance -= withdrawal.WithdrawalAmount
-	balance.Withdrawn += withdrawal.WithdrawalAmount
-	util.GetLogger().Infoln(withdrawal)
-
-	err = s.repo.WriteBalance(ctx, balance)
-	if err != nil {
-		return err
-	}
-
-	err = s.repo.AddWithdrawal(ctx, withdrawal)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return s.repo.AddWithdrawal(ctx, withdrawal)
 }
