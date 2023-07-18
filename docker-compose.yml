@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: gophermart-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./gophermart-mongo:/data/db
+  postgres:
+    image: postgres:13.6
+    container_name: gophermart-postgres
+    environment:
+      POSTGRES_USER: gophermart-postgres
+      POSTGRES_PASSWORD: gophermart-postgres
+      POSTGRES_DB: gophermart-postgres
+    volumes:
+      - ./gophermart-postgres:/var/lib/postgresql/data
+    ports:
+      - "3000:5432"
+    command: [ "postgres", "-c", "log_statement=all" ]
