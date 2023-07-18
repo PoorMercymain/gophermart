@@ -1,4 +1,3 @@
-//nolint:golint
 package handler
 
 import (
@@ -8,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
+	//lint:ignore
 	"github.com/PoorMercymain/gophermart/internal/domain/mocks"
 	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/service"
