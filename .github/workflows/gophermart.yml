@@ -25,11 +25,9 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
-          
+
       mongodb:
         image: mongo:latest
-        ports:
-          - "27017:27017"
 
     steps:
       - name: Checkout code
