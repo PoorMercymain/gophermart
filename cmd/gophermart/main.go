@@ -126,7 +126,7 @@ func main() {
 	}
 
 	if *address == "" {
-		*address, addressSet = os.LookupEnv("DATABASE_URI")
+		*address, addressSet = os.LookupEnv("RUN_ADDRESS")
 	}
 
 	if *dsn == "" && !dsnSet {
