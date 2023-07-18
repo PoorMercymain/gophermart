@@ -6,7 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/PoorMercymain/gophermart/internal/conf"
 	"github.com/PoorMercymain/gophermart/internal/handler"
 	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/repository"
@@ -63,8 +65,6 @@ func NewPG(DSN string) (*pgxpool.Pool, error) {
 }
 
 func router(pool *pgxpool.Pool) *echo.Echo {
-	util.InitLogger()
-
 	e := echo.New()
 
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
@@ -107,13 +107,41 @@ func router(pool *pgxpool.Pool) *echo.Echo {
 	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader(), middleware.CheckAuth(ur))
+	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/test", func(c echo.Context) error { return c.String(http.StatusOK, "Hello, World!") }, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	return e
 }
 
 func main() {
+	util.InitLogger()
 	dsn := flag.String("d", "", "postgres DSN")
+	address := flag.String("a", "", "server address")
+
 	flag.Parse()
+
+	var dsnSet, addressSet bool
+
+	if *dsn == "" {
+		*dsn, dsnSet = os.LookupEnv("DATABASE_URI")
+	}
+
+	if *address == "" {
+		*address, addressSet = os.LookupEnv("RUN_ADDRESS")
+	}
+
+	if *dsn == "" && !dsnSet {
+		*dsn = "host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable"
+		util.GetLogger().Infoln("default value for dsn used")
+	}
+
+	if *address == "" && !addressSet {
+		*address = "localhost:8080"
+		util.GetLogger().Infoln("default value for server address used")
+	}
+
+	config := conf.Config{DatabaseURI: *dsn, ServerAddress: *address}
+
+	util.GetLogger().Infoln(config)
 
 	pool, err := NewPG(*dsn)
 	if err != nil {
@@ -121,5 +149,5 @@ func main() {
 		return
 	}
 	defer pool.Close()
-	router(pool).Start(":8080")
+	router(pool).Start(config.ServerAddress)
 }

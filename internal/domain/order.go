@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type Order struct {
-	Number           int64     `json:"number"`
+	Number           string    `json:"number"`
 	Status           string    `json:"status"`
 	Accrual          int       `json:"accrual,omitempty"`
 	UploadedAt       time.Time `json:"-"`

@@ -74,7 +74,7 @@ func (r *user) Ping(ctx context.Context) error {
 	return nil
 }
 
-func (r *user) AddOrder(ctx context.Context, orderNumber int64) error {
+func (r *user) AddOrder(ctx context.Context, orderNumber string) error {
 	conn, err := r.pgxPool.Acquire(ctx)
 	if err != nil {
 		return err
@@ -92,17 +92,17 @@ func (r *user) AddOrder(ctx context.Context, orderNumber int64) error {
 	_, err = tx.Exec(ctx, "INSERT INTO orders VALUES($1, $2, $3, $4)", orderNumber, time.Now(), "NEW", ctx.Value(domain.Key("login")))
 	if err != nil {
 		var login string
-		util.LogInfoln(pgErr)
+		util.GetLogger().Infoln(pgErr)
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 			tx.Rollback(ctx)
-			util.LogInfoln(err)
+			util.GetLogger().Infoln(err)
 			conn.QueryRow(ctx, "SELECT username FROM orders WHERE num = $1", orderNumber).Scan(&login)
-			util.LogInfoln(login)
+			util.GetLogger().Infoln(login)
 			if login == ctx.Value(domain.Key("login")).(string) {
-				util.LogInfoln(domain.ErrorAlreadyRegistered.Error())
+				util.GetLogger().Infoln(domain.ErrorAlreadyRegistered.Error())
 				return domain.ErrorAlreadyRegistered
 			}
-			util.LogInfoln(domain.ErrorAlreadyRegisteredByAnotherUser.Error())
+			util.GetLogger().Infoln(domain.ErrorAlreadyRegisteredByAnotherUser.Error())
 			return domain.ErrorAlreadyRegisteredByAnotherUser
 		}
 		util.GetLogger().Infoln(err)
@@ -121,7 +121,7 @@ func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 
 	rows, err := conn.Query(ctx, "SELECT num, stat, uploaded_at FROM orders WHERE username = $1 ORDER BY uploaded_at DESC LIMIT 15 OFFSET $2", ctx.Value(domain.Key("login")), ((ctx.Value(domain.Key("page")).(int))-1)*15)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		return nil, err
 	}
 
@@ -149,4 +149,38 @@ func (r *user) ReadBalance(ctx context.Context) (domain.Balance, error) {
 	conn.QueryRow(ctx, "SELECT balance, withdrawn FROM balances WHERE username = $1", ctx.Value(domain.Key("login"))).Scan(&balance.Balance, &balance.Withdrawn)
 
 	return balance, nil
+}
+
+func (r *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) error {
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	var balance domain.Balance
+
+	tx.QueryRow(ctx, "SELECT balance, withdrawn FROM balances WHERE username = $1", ctx.Value(domain.Key("login"))).Scan(&balance.Balance, &balance.Withdrawn)
+
+	if balance.Balance < withdrawal.WithdrawalAmount {
+		return domain.ErrorNotEnoughPoints
+	}
+
+	_, err = tx.Exec(ctx, "UPDATE balances SET balance = balance - $1, withdrawn = withdrawn + $2 WHERE username = $3", withdrawal.WithdrawalAmount, withdrawal.WithdrawalAmount, ctx.Value(domain.Key("login")))
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx, "INSERT INTO withdrawals VALUES($1, $2, $3, $4)", ctx.Value(domain.Key("login")), withdrawal.OrderNumber, withdrawal.WithdrawalAmount, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

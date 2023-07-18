@@ -3,6 +3,7 @@ package handler
 import (
 	"bufio"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"errors"
@@ -35,18 +36,18 @@ func (h *user) Register(c echo.Context) error {
 
 	if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
 		c.Response().WriteHeader(http.StatusBadRequest)
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		return err
 	}
 	defer c.Request().Body.Close()
 
 	if user.Login == "" || user.Password == "" {
 		c.Response().WriteHeader(http.StatusBadRequest)
-		util.LogInfoln("login or password is empty:", user)
+		util.GetLogger().Infoln("login or password is empty:", user)
 		return nil
 	}
 
-	util.LogInfoln("this is a password:", user.Password, "this is a login:", user.Login)
+	util.GetLogger().Infoln("this is a password:", user.Password, "this is a login:", user.Login)
 
 	uniqueLoginErrorChan := make(chan error, 1)
 
@@ -62,14 +63,14 @@ func (h *user) Register(c echo.Context) error {
 		}
 	}
 
-	util.LogInfoln("в хэндлере", user)
+	util.GetLogger().Infoln("в хэндлере", user)
 	jwtStr, err := CreateJWTString(user.Login + " " + user.Password)
 	if err != nil {
 		c.Response().WriteHeader(http.StatusInternalServerError)
 		return err
 	}
 
-	util.LogInfoln("jwt", jwtStr)
+	util.GetLogger().Infoln("jwt", jwtStr)
 	cookie := &http.Cookie{Name: "jwt", Value: jwtStr, Expires: time.Now().Add(time.Hour * 3)}
 	http.SetCookie(c.Response(), cookie)
 	c.Response().WriteHeader(http.StatusOK)
@@ -86,14 +87,14 @@ func (h *user) Authenticate(c echo.Context) error {
 
 	if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
 		c.Response().WriteHeader(http.StatusBadRequest)
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		return err
 	}
 	defer c.Request().Body.Close()
 
 	if user.Login == "" || user.Password == "" {
 		c.Response().WriteHeader(http.StatusBadRequest)
-		util.LogInfoln("login or password is empty:", user)
+		util.GetLogger().Infoln("login or password is empty:", user)
 		return nil
 	}
 
@@ -104,8 +105,8 @@ func (h *user) Authenticate(c echo.Context) error {
 			c.Response().WriteHeader(http.StatusInternalServerError)
 			return err
 		}
-		util.LogInfoln("this is a password:", user.Password, "this is a login:", user.Login)
-		util.LogInfoln("jwt", jwtStr)
+		util.GetLogger().Infoln("this is a password:", user.Password, "this is a login:", user.Login)
+		util.GetLogger().Infoln("jwt", jwtStr)
 		cookie := &http.Cookie{Name: "jwt", Value: jwtStr, Expires: time.Now().Add(time.Hour * 3)}
 		http.SetCookie(c.Response(), cookie)
 		c.Response().WriteHeader(http.StatusOK)
@@ -126,14 +127,17 @@ func (h *user) AddOrder(c echo.Context) error {
 	scanner.Scan()
 	defer c.Request().Body.Close()
 
-	orderNumber, err := strconv.ParseInt(scanner.Text(), 10, 64)
-	if err != nil {
-		c.Response().WriteHeader(http.StatusUnprocessableEntity)
-		return err
+	orderN := scanner.Text()
+
+	for _, ch := range orderN {
+		if _, err := strconv.Atoi(string(ch)); err != nil {
+			c.Response().WriteHeader(http.StatusUnprocessableEntity)
+			return err
+		}
 	}
 
 	// TODO: add goroutine to send req to accrual
-	err = h.srv.AddOrder(c.Request().Context(), orderNumber)
+	err := h.srv.AddOrder(c.Request().Context(), orderN)
 	if errors.Is(err, domain.ErrorAlreadyRegistered) {
 		c.Response().WriteHeader(http.StatusOK)
 		return err
@@ -155,8 +159,11 @@ func (h *user) ReadOrders(c echo.Context) error {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return err
 	}
-	if c.Request().Header.Get("page") == "" || page < 1 {
+	if c.Request().Header.Get("page") == "" || page == 0 {
 		page = 1
+	} else if page < 0 {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
 	}
 
 	ctx := context.WithValue(c.Request().Context(), domain.Key("page"), page)
@@ -182,6 +189,25 @@ func (h *user) ReadOrders(c echo.Context) error {
 		return err
 	}
 	c.Response().Header().Set("Content-Type", "application/json")
+
+	if len(buf.Bytes()) > 1024 {
+		acceptsEncoding := c.Request().Header.Values("Accept-Encoding")
+		for _, encoding := range acceptsEncoding {
+			if strings.Contains(encoding, "gzip") {
+				c.Response().Header().Set(echo.HeaderContentEncoding, "gzip")
+				gz := gzip.NewWriter(c.Response().Writer)
+				defer gz.Close()
+
+				c.Response().Writer = domain.GzipResponseWriter{
+					Writer:         gz,
+					ResponseWriter: c.Response().Writer,
+				}
+				util.GetLogger().Infoln("gzip used")
+				break
+			}
+		}
+	}
+
 	c.Response().Write(buf.Bytes())
 	return nil
 }
@@ -195,6 +221,42 @@ func (h *user) ReadBalance(c echo.Context) error {
 
 	c.Response().Header().Set("Content-Type", "application/json")
 	c.Response().Write(balance.Marshal())
+	return nil
+}
+
+func (h *user) AddWithdrawal(c echo.Context) error {
+	if !IsJSONContentTypeCorrect(c.Request()) {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
+	}
+
+	var withdrawal domain.Withdrawal
+
+	if err := json.NewDecoder(c.Request().Body).Decode(&withdrawal); err != nil {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		util.GetLogger().Infoln(err)
+		return err
+	}
+	defer c.Request().Body.Close()
+
+	for _, ch := range withdrawal.OrderNumber {
+		if _, err := strconv.Atoi(string(ch)); err != nil {
+			c.Response().WriteHeader(http.StatusUnprocessableEntity)
+			return err
+		}
+	}
+
+	err := h.srv.AddWithdrawal(c.Request().Context(), withdrawal)
+	if err != nil {
+		if errors.Is(err, domain.ErrorNotEnoughPoints) {
+			c.Response().WriteHeader(http.StatusPaymentRequired)
+			return err
+		}
+		util.GetLogger().Infoln(err)
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	c.Response().WriteHeader(http.StatusOK)
 	return nil
 }
 
@@ -241,7 +303,7 @@ func CreateJWTString(stringToIncludeInJWT string) (string, error) {
 
 	tokenString, err := token.SignedString([]byte("ultrasecretkey"))
 	if err != nil {
-		util.LogInfoln("could not create token", err)
+		util.GetLogger().Infoln("could not create token", err)
 		return "", err
 	}
 	return tokenString, err
