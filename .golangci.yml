@@ -1,3 +1,6 @@
 linters:
   disable:
     - errcheck
+linters-settings:
+  gomock:
+    enabled: false
