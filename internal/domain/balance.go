@@ -19,6 +19,7 @@ func (b *Balance) Marshal() []byte {
 			balanceString += fmt.Sprintf(".0%d", balanceAfterPoint)
 		}
 	}
+
 	balanceString += fmt.Sprintf(",\"withdrawn\": %d", withdrawn)
 	if withdrawnAfterPoint > 0 {
 		if withdrawnAfterPoint > 9 {
