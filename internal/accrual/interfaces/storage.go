@@ -1,7 +1,10 @@
 package interfaces
 
-import "github.com/PoorMercymain/gophermart/internal/accrual/domain"
-import "context"
+import (
+	"context"
+
+	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
+)
 
 type Storage interface {
 	StoreGoodsReward(ctx context.Context, goods *domain.Goods) error

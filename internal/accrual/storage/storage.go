@@ -5,14 +5,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
-	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces"
-	"github.com/PoorMercymain/gophermart/pkg/util"
+	"sync"
+
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pressly/goose/v3"
-	"sync"
+
+	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
+	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces"
+	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
 type dbStorage struct {

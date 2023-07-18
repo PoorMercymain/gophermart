@@ -5,14 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/PoorMercymain/gophermart/internal/accrual/calculator"
-	"github.com/ShiraazMoollatjie/goluhn"
 	"net/http"
 	"strings"
 
+	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
 
+	"github.com/PoorMercymain/gophermart/internal/accrual/calculator"
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
 	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces"
 	"github.com/PoorMercymain/gophermart/pkg/util"

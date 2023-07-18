@@ -4,8 +4,9 @@ import (
 	"compress/gzip"
 	"net/http"
 
-	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/labstack/echo"
+	
+	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
 func UseGzipReader() echo.MiddlewareFunc {

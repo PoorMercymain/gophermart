@@ -2,7 +2,6 @@ package calculator
 
 import (
 	"context"
-
 	"math/rand"
 	"time"
 
