@@ -67,7 +67,7 @@ func NewPG(DSN string) (*pgxpool.Pool, error) {
 func router(pool *pgxpool.Pool) *echo.Echo {
 	e := echo.New()
 
-	clientOptions := options.Client().ApplyURI("mongodb://0.0.0.0:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://127.0.0.1:27017")
 	ctx := context.Background()
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
@@ -114,6 +114,9 @@ func router(pool *pgxpool.Pool) *echo.Echo {
 
 func main() {
 	util.InitLogger()
+
+	util.GetLogger().Infoln("логгер запустился")
+
 	dsn := flag.String("d", "", "postgres DSN")
 	address := flag.String("a", "", "server address")
 
@@ -143,7 +146,7 @@ func main() {
 
 	util.GetLogger().Infoln(config)
 
-	pool, err := NewPG(*dsn)
+	pool, err := NewPG(config.DatabaseURI)
 	if err != nil {
 		util.LogInfoln(err)
 		return
