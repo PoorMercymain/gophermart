@@ -64,4 +64,4 @@ jobs:
             -accrual-host=localhost \
             -accrual-port=$(random unused-port) \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable"
-            docker logs "${{ job.services.mongodb.id }}"
+            docker logs "${{ job.services.postgres.id }}"
