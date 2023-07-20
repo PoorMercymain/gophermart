@@ -67,7 +67,7 @@ func NewPG(DSN string) (*pgxpool.Pool, error) {
 func router(pool *pgxpool.Pool) *echo.Echo {
 	e := echo.New()
 
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017")
 	ctx := context.Background()
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
