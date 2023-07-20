@@ -24,7 +24,7 @@ import (
 )
 
 func NewPG(DSN string) (*pgxpool.Pool, error) {
-	pg, err := sql.Open("pgx/v5", DSN)
+	pg, err := sql.Open("pgx", DSN)
 	if err != nil {
 		util.GetLogger().Infoln(err)
 		return nil, err
@@ -62,7 +62,7 @@ func NewPG(DSN string) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	util.GetLogger().Infoln("норм", pool, err)
+	util.GetLogger().Infoln("норм1", pool, err)
 	fmt.Println("норм", pool, err)
 	return pool, err
 }
