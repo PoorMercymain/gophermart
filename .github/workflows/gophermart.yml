@@ -64,3 +64,9 @@ jobs:
             -accrual-host=localhost \
             -accrual-port=$(random unused-port) \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable"
+
+      - name: Сохранение логов контейнера как артефакта
+        uses: actions/upload-artifact@v2
+        with:
+          name: container-logs
+          path: logs/container.log
