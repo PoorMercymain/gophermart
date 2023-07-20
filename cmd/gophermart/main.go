@@ -26,40 +26,43 @@ import (
 func NewPG(DSN string) (*pgxpool.Pool, error) {
 	pg, err := sql.Open("pgx/v5", DSN)
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return nil, err
 	}
 	err = goose.SetDialect("postgres")
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return nil, err
 	}
 
 	err = pg.PingContext(context.Background())
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return nil, err
 	}
 
 	err = goose.Run("up", pg, "./pkg/migrations")
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return nil, err
 	}
 	pg.Close()
 
 	config, err := pgxpool.ParseConfig(DSN)
 	if err != nil {
+		util.GetLogger().Infoln(err)
 		fmt.Println("Error parsing DSN:", err)
 		return nil, err
 	}
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
+		util.GetLogger().Infoln(err)
 		fmt.Println("Error creating pgxpool:", err)
 		return nil, err
 	}
 
+	util.GetLogger().Infoln("норм", pool, err)
 	fmt.Println("норм", pool, err)
 	return pool, err
 }
