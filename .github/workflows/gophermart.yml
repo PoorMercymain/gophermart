@@ -64,4 +64,9 @@ jobs:
             -accrual-host=localhost \
             -accrual-port=$(random unused-port) \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable"
-            docker logs "${{ job.services.postgres.id }}"
+
+      - name: Archive logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: logfile.log
