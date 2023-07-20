@@ -66,6 +66,7 @@ jobs:
             -accrual-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable"
 
       - name: Archive logs
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: logs
