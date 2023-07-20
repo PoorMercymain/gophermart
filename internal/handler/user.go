@@ -59,6 +59,7 @@ func (h *user) Register(c echo.Context) error {
 			return err
 		default:
 			c.Response().WriteHeader(http.StatusInternalServerError)
+			util.GetLogger().Infoln(err)
 			return err
 		}
 	}
