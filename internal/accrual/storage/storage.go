@@ -88,11 +88,11 @@ func (dbs *dbStorage) StoreGoodsReward(ctx context.Context, goods *domain.Goods)
 
 	if err != nil {
 
-		util.LogInfoln(err)
-		util.LogInfoln(pgErr)
+		util.GetLogger().Infoln(err)
+		util.GetLogger().Infoln(pgErr)
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 			tx.Rollback(ctx)
-			util.LogInfoln(err)
+			util.GetLogger().Infoln(err)
 			return domain.ErrorMatchAlreadyRegistered
 		}
 		return
@@ -100,8 +100,8 @@ func (dbs *dbStorage) StoreGoodsReward(ctx context.Context, goods *domain.Goods)
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		util.LogInfoln(err)
-		util.LogInfoln(pgErr)
+		util.GetLogger().Infoln(err)
+		util.GetLogger().Infoln(pgErr)
 	}
 	return
 }
@@ -127,10 +127,10 @@ func (dbs *dbStorage) StoreOrder(ctx context.Context, order *domain.OrderRecord)
 	_, err = tx.Exec(ctx, currInsertValues)
 
 	if err != nil {
-		util.LogInfoln(pgErr)
+		util.GetLogger().Infoln(pgErr)
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 			tx.Rollback(ctx)
-			util.LogInfoln(err)
+			util.GetLogger().Infoln(err)
 			return domain.ErrorOrderAlreadyProcessing
 		}
 		return err
@@ -161,7 +161,7 @@ func (dbs *dbStorage) UpdateOrder(ctx context.Context, order *domain.OrderRecord
 	_, err = tx.Exec(ctx, currInsertValues)
 
 	if err != nil {
-		util.LogInfoln(pgErr)
+		util.GetLogger().Infoln(pgErr)
 		return err
 	}
 
@@ -199,13 +199,13 @@ func (dbs *dbStorage) GetGoods(ctx context.Context) (goods []*domain.Goods, err 
 		Scan(&totalRows)
 
 	if totalRows == 0 {
-		util.LogInfoln("no goods registered")
+		util.GetLogger().Infoln("no goods registered")
 		return
 	}
 
 	rows, err := conn.Query(ctx, "SELECT match, reward, reward_type FROM goods")
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		return
 	}
 

@@ -19,7 +19,7 @@ func main() {
 	dbs, err := storage.NewDBStorage(*dbURI)
 
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		return
 	}
 
@@ -29,7 +29,7 @@ func main() {
 	err = router.Start(*host)
 
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		return
 	}
 
