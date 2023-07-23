@@ -43,6 +43,7 @@ jobs:
 
       - name: Create databases
         run: |
+          apt update
           apt install -y postgresql-client
 
       - name: Download autotests binaries
