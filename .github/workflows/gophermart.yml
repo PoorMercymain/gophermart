@@ -35,6 +35,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Check Postgres init directory
+        run: |
+          ls ${{ github.workspace }}/init-dbs
+          ls ${{ github.workspace }}
+
       - name: Download autotests binaries
         uses: robinraju/release-downloader@v1.2
         with:
