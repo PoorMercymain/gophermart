@@ -31,6 +31,9 @@ jobs:
         image: mongo:latest
 
     steps:
+      - name: List all databases
+        run: psql -h postgres -U postgres -c '\l';
+
       - name: Checkout code
         uses: actions/checkout@v2
 
