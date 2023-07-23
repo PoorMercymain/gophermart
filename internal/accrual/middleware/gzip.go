@@ -19,7 +19,7 @@ func UseGzipReader() echo.MiddlewareFunc {
 				if headerValue == "gzip" {
 					break
 				}
-				util.LogInfoln(i, len(c.Request().Header.Values("Content-Type"))-1)
+				util.GetLogger().Infoln(i, len(c.Request().Header.Values("Content-Type"))-1)
 				if i == (len(c.Request().Header.Values("Content-Type")) - 1) {
 					return next(c)
 				}

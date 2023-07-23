@@ -19,11 +19,11 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 		Status: domain.OrderStatusProcessing,
 	}
 
-	util.LogInfoln(orderRecord)
+	util.GetLogger().Infoln(orderRecord)
 
 	err := storage.UpdateOrder(ctx, &orderRecord)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		cancelCtx(err)
 		return
 	}
@@ -37,10 +37,10 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 
 	err = storage.UpdateOrder(ctx, &orderRecord)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		cancelCtx(err)
 		return
 	}
 
-	util.LogInfoln(orderRecord)
+	util.GetLogger().Infoln(orderRecord)
 }

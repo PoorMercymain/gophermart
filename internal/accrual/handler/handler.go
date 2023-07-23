@@ -30,12 +30,12 @@ func NewStorageHandler(storage interfaces.Storage) *StorageHandler {
 
 func (h *StorageHandler) ProcessGetOrdersRequest(c echo.Context) (err error) {
 	orderNumber := c.Param("number")
-	util.LogInfoln(orderNumber)
+	util.GetLogger().Infoln(orderNumber)
 
 	//check order number
 	err = goluhn.Validate(orderNumber)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		err = domain.ErrorOrderNotRegistered
 		c.Response().WriteHeader(http.StatusNoContent)
 		return
@@ -43,16 +43,16 @@ func (h *StorageHandler) ProcessGetOrdersRequest(c echo.Context) (err error) {
 
 	order, err := h.storage.GetOrder(c.Request().Context(), &orderNumber)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		err = domain.ErrorOrderNotRegistered
 		c.Response().WriteHeader(http.StatusNoContent)
 		return
 	}
-	util.LogInfoln(*order)
+	util.GetLogger().Infoln(*order)
 
 	out, err := json.Marshal(order)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		c.Response().WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -82,18 +82,18 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 
 	err = json.Unmarshal(buf.Bytes(), &order)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	util.LogInfoln(order)
+	util.GetLogger().Infoln(order)
 
 	//check order number
 	err = goluhn.Validate(order.Number)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return
@@ -106,7 +106,7 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 	}
 	err = h.storage.StoreOrder(c.Request().Context(), &orderRecord)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		if errors.Is(err, domain.ErrorOrderAlreadyProcessing) {
 			c.Response().WriteHeader(http.StatusConflict)
 		}
@@ -143,18 +143,18 @@ func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
 
 	err = json.Unmarshal(buf.Bytes(), &goods)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	util.LogInfoln(goods)
+	util.GetLogger().Infoln(goods)
 
 	_, err = govalidator.ValidateStruct(goods)
 
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return
@@ -162,7 +162,7 @@ func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
 
 	err = h.storage.StoreGoodsReward(c.Request().Context(), &goods)
 	if err != nil {
-		util.LogInfoln(err)
+		util.GetLogger().Infoln(err)
 		if errors.Is(err, domain.ErrorMatchAlreadyRegistered) {
 			c.Response().WriteHeader(http.StatusConflict)
 		}
