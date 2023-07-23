@@ -20,7 +20,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         volumes:
-          - ${{ github.workspace }}/init-dbs:/docker-entrypoint-initdb.d
+          - /__w/gophermart/gophermart/init-dbs:/docker-entrypoint-initdb.d
         options: >-
           --health-cmd pg_isready
           --health-interval 5s
