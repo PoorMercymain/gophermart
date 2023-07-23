@@ -37,8 +37,8 @@ jobs:
 
       - name: Check Postgres init directory
         run: |
-          ls ${{ github.workspace }}/init-dbs
           ls ${{ github.workspace }}
+          ls ${{ github.workspace }}/init-dbs
 
       - name: Download autotests binaries
         uses: robinraju/release-downloader@v1.2
