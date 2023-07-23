@@ -43,7 +43,7 @@ jobs:
 
       - name: Create databases
         run: |
-          apt-get install -y psql
+          apt install -y postgresql-client
 
       - name: Download autotests binaries
         uses: robinraju/release-downloader@v1.2
