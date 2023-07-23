@@ -45,6 +45,8 @@ jobs:
         run: |
           apt update
           apt install -y postgresql-client
+          psql -c "CREATE DATABASE gophermart;"
+          psql -c "CREATE DATABASE accrual;"
 
       - name: Download autotests binaries
         uses: robinraju/release-downloader@v1.2
