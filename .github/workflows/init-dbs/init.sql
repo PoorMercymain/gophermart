@@ -1,4 +1,4 @@
 -- creating gophermart database
-CREATE DATABASE IF NOT EXISTS gophermart;
+CREATE DATABASE gophermart;
 -- creating accrual database
-CREATE DATABASE IF NOT EXISTS accrual;
+CREATE DATABASE accrual;
