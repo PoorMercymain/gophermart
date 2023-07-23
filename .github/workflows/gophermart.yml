@@ -20,7 +20,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         volumes:
-          - ./init-dbs:/docker-entrypoint-initdb.d
+          - init-dbs:/docker-entrypoint-initdb.d
         options: >-
           --health-cmd pg_isready
           --health-interval 5s
