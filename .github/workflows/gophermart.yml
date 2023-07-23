@@ -20,7 +20,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         volumes:
-          - $(GITHUB_WORKSPACE)/init-dbs:/docker-entrypoint-initdb.d
+          - ${{ github.workspace }}/init-dbs:/docker-entrypoint-initdb.d
         options: >-
           --health-cmd pg_isready
           --health-interval 5s
@@ -37,6 +37,7 @@ jobs:
 
       - name: Check Postgres init directory
         run: |
+          echo $GITHUB_WORKSPACE, ${{ github.workspace }}
           ls $GITHUB_WORKSPACE
           ls $GITHUB_WORKSPACE/init-dbs
 
