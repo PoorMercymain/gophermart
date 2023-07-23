@@ -26,14 +26,12 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+          --user postgres
 
       mongodb:
         image: mongo:latest
 
     steps:
-      - name: List all databases
-        run: psql -h postgres -U postgres -c '\l';
-
       - name: Checkout code
         uses: actions/checkout@v2
 
