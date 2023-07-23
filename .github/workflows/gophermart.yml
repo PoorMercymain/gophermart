@@ -41,6 +41,10 @@ jobs:
           ls $GITHUB_WORKSPACE
           ls $GITHUB_WORKSPACE/init-dbs
 
+      - name: Create databases
+        run: |
+          sudo apt-get install -y psql
+
       - name: Download autotests binaries
         uses: robinraju/release-downloader@v1.2
         with:
