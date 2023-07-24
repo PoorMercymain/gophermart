@@ -1,6 +1,25 @@
 package domain
 
-import "fmt"
+import (
+	"fmt"
+)
+
+type Accrual struct {
+	Money int
+}
+
+func (a *Accrual) MarshalJSON() ([]byte, error) {
+	moneyBeforePoint, moneyAfterPoint := getBeforeAndAfterPoint(a.Money)
+	accrualString := fmt.Sprintf("%d", moneyBeforePoint)
+	if moneyAfterPoint > 0 {
+		if moneyAfterPoint > 9 {
+			accrualString += fmt.Sprintf(".%d", moneyAfterPoint)
+		} else {
+			accrualString += fmt.Sprintf(".0%d", moneyAfterPoint)
+		}
+	}
+	return []byte(accrualString), nil
+}
 
 type Balance struct {
 	Balance   int

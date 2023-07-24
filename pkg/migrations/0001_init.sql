@@ -1,6 +1,6 @@
 -- +goose Up
 BEGIN TRANSACTION;
-CREATE TABLE IF NOT EXISTS orders(num TEXT PRIMARY KEY, uploaded_at TIMESTAMP, stat TEXT, username TEXT);
+CREATE TABLE IF NOT EXISTS orders(num TEXT PRIMARY KEY, uploaded_at TIMESTAMP, stat TEXT, username TEXT, accrual INTEGER);
 CREATE INDEX IF NOT EXISTS orders_idx ON orders USING BTREE (num, username);
 CREATE TABLE IF NOT EXISTS balances(username TEXT PRIMARY KEY, balance INTEGER, withdrawn INTEGER);
 CREATE INDEX IF NOT EXISTS balances_idx ON balances USING BTREE (username, balance, withdrawn);

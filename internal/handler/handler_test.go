@@ -77,10 +77,10 @@ func TestRouter(t *testing.T) {
 	}{
 		{"/api/user/register", http.MethodPost, http.StatusOK, "{\"login\":\"test\",\"password\":\"test\"}"},
 		{"/api/user/login", http.MethodPost, http.StatusUnauthorized, "{\"login\":\"test\",\"password\":\"testing\"}"},
-		{"/api/user/orders", http.MethodPost, http.StatusAccepted, "123456"},
+		{"/api/user/orders", http.MethodPost, http.StatusAccepted, "573956"},
 		{"/api/user/orders", http.MethodGet, http.StatusNoContent, ""},
 		{"/api/user/balance", http.MethodGet, http.StatusOK, ""},
-		{"/api/user/balance/withdraw", http.MethodPost, http.StatusOK, "{\"order\": \"123\", \"sum\": 0}"},
+		{"/api/user/balance/withdraw", http.MethodPost, http.StatusOK, "{\"order\": \"573956\", \"sum\": 0}"},
 	}
 
 	for _, testCase := range testTable {

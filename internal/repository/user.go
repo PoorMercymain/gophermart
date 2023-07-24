@@ -99,7 +99,7 @@ func (r *user) AddOrder(ctx context.Context, orderNumber string) error {
 
 	var pgErr *pgconn.PgError
 
-	_, err = tx.Exec(ctx, "INSERT INTO orders VALUES($1, $2, $3, $4)", orderNumber, time.Now(), "NEW", ctx.Value(domain.Key("login")))
+	_, err = tx.Exec(ctx, "INSERT INTO orders VALUES($1, $2, $3, $4, $5)", orderNumber, time.Now(), "NEW", ctx.Value(domain.Key("login")), 0)
 	if err != nil {
 		var login string
 		util.GetLogger().Infoln(pgErr)
@@ -129,7 +129,7 @@ func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 	}
 	defer conn.Release()
 
-	rows, err := conn.Query(ctx, "SELECT num, stat, uploaded_at FROM orders WHERE username = $1 ORDER BY uploaded_at DESC LIMIT 15 OFFSET $2", ctx.Value(domain.Key("login")), ((ctx.Value(domain.Key("page")).(int))-1)*15)
+	rows, err := conn.Query(ctx, "SELECT num, stat, uploaded_at, accrual FROM orders WHERE username = $1 ORDER BY uploaded_at DESC LIMIT 15 OFFSET $2", ctx.Value(domain.Key("login")), ((ctx.Value(domain.Key("page")).(int))-1)*15)
 	if err != nil {
 		util.GetLogger().Infoln(err)
 		return nil, err
@@ -137,9 +137,14 @@ func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 
 	var order domain.Order
 	orders := make([]domain.Order, 0)
+	var accrual int
 
 	for rows.Next() {
-		rows.Scan(&order.Number, &order.Status, &order.UploadedAt) // TODO: need to set actual accrual here
+		rows.Scan(&order.Number, &order.Status, &order.UploadedAt, &accrual)
+		util.GetLogger().Infoln("пам-пам", order, accrual)
+		if accrual != 0 {
+			order.Accrual.Money = accrual
+		}
 		order.UploadedAtString = order.UploadedAt.Format(time.RFC3339)
 		orders = append(orders, order)
 	}
