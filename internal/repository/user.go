@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
@@ -14,25 +15,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// TODO: add mutexes
 type user struct {
+	mongo   *mongoWithMutex
+	pgxPool *pgxpool.Pool
+}
+
+type mongoWithMutex struct {
 	mongoCollection *mongo.Collection
-	pgxPool         *pgxpool.Pool
+	*sync.Mutex
 }
 
 func NewUser(mongoCollection *mongo.Collection, pgxPool *pgxpool.Pool) *user {
-	return &user{mongoCollection: mongoCollection, pgxPool: pgxPool}
+	return &user{mongo: &mongoWithMutex{mongoCollection, &sync.Mutex{}}, pgxPool: pgxPool}
 }
 
 func (r *user) Register(ctx context.Context, user domain.User, uniqueLoginErrorChan chan error) error {
-	_, err := r.mongoCollection.InsertOne(ctx, user)
+	r.mongo.Lock()
+	_, err := r.mongo.mongoCollection.InsertOne(ctx, user)
+	r.mongo.Unlock()
 	if err != nil {
 		if mongo.IsDuplicateKeyError(err) {
 			uniqueLoginErrorChan <- err
 			close(uniqueLoginErrorChan)
-			return err
 		}
+		return err
 	}
+
 	conn, err := r.pgxPool.Acquire(ctx)
 	if err != nil {
 		return err
@@ -53,7 +61,9 @@ func (r *user) Register(ctx context.Context, user domain.User, uniqueLoginErrorC
 func (r *user) GetPasswordHash(ctx context.Context, login string) (string, error) {
 	var user domain.User
 	filter := bson.M{"login": login}
-	err := r.mongoCollection.FindOne(ctx, filter).Decode(&user)
+	r.mongo.Lock()
+	err := r.mongo.mongoCollection.FindOne(ctx, filter).Decode(&user)
+	r.mongo.Unlock()
 	if err != nil {
 		return "", err
 	}

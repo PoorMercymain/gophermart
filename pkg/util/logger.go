@@ -12,10 +12,10 @@ func InitLogger() error {
 	cfg := zap.NewProductionConfig()
 	cfg.OutputPaths = []string{"logfile.log"}
 
-    logger, err := cfg.Build()
-    if err != nil {
-        return err
-    }
+	logger, err := cfg.Build()
+	if err != nil {
+		return err
+	}
 
 	instance = logger.Sugar()
 	return nil

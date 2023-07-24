@@ -130,13 +130,6 @@ func (h *user) AddOrder(c echo.Context) error {
 
 	orderN := scanner.Text()
 
-	for _, ch := range orderN {
-		if _, err := strconv.Atoi(string(ch)); err != nil {
-			c.Response().WriteHeader(http.StatusUnprocessableEntity)
-			return err
-		}
-	}
-
 	// TODO: add goroutine to send req to accrual
 	err := h.srv.AddOrder(c.Request().Context(), orderN)
 	if errors.Is(err, domain.ErrorAlreadyRegistered) {
@@ -144,6 +137,9 @@ func (h *user) AddOrder(c echo.Context) error {
 		return err
 	} else if errors.Is(err, domain.ErrorAlreadyRegisteredByAnotherUser) {
 		c.Response().WriteHeader(http.StatusConflict)
+		return err
+	} else if errors.Is(err, domain.ErrorIncorrectOrderNumber) {
+		c.Response().WriteHeader(http.StatusUnprocessableEntity)
 		return err
 	} else if err != nil {
 		c.Response().WriteHeader(http.StatusInternalServerError)
@@ -240,17 +236,13 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 	}
 	defer c.Request().Body.Close()
 
-	for _, ch := range withdrawal.OrderNumber {
-		if _, err := strconv.Atoi(string(ch)); err != nil {
-			c.Response().WriteHeader(http.StatusUnprocessableEntity)
-			return err
-		}
-	}
-
 	err := h.srv.AddWithdrawal(c.Request().Context(), withdrawal)
 	if err != nil {
 		if errors.Is(err, domain.ErrorNotEnoughPoints) {
 			c.Response().WriteHeader(http.StatusPaymentRequired)
+			return err
+		} else if errors.Is(err, domain.ErrorIncorrectOrderNumber) {
+			c.Response().WriteHeader(http.StatusUnprocessableEntity)
 			return err
 		}
 		util.GetLogger().Infoln(err)

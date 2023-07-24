@@ -5,6 +5,7 @@ import (
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
 	"github.com/PoorMercymain/gophermart/pkg/util"
+	"github.com/ShiraazMoollatjie/goluhn"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -43,7 +44,11 @@ func (s *user) CompareHashAndPassword(ctx context.Context, user *domain.User) (b
 }
 
 func (s *user) AddOrder(ctx context.Context, orderNumber string) error {
-	//TODO: add Luhn check
+	err := goluhn.Validate(orderNumber)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return domain.ErrorIncorrectOrderNumber
+	}
 	return s.repo.AddOrder(ctx, orderNumber)
 }
 
@@ -56,5 +61,10 @@ func (s *user) ReadBalance(ctx context.Context) (domain.Balance, error) {
 }
 
 func (s *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) error {
+	err := goluhn.Validate(withdrawal.OrderNumber)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return domain.ErrorIncorrectOrderNumber
+	}
 	return s.repo.AddWithdrawal(ctx, withdrawal)
 }

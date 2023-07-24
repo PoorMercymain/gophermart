@@ -67,10 +67,10 @@ func NewPG(DSN string) (*pgxpool.Pool, error) {
 	return pool, err
 }
 
-func router(pool *pgxpool.Pool) *echo.Echo {
+func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string) *echo.Echo {
 	e := echo.New()
 
-	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017")
+	clientOptions := options.Client().ApplyURI(mongoURI)
 	ctx := context.Background()
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
@@ -107,6 +107,7 @@ func router(pool *pgxpool.Pool) *echo.Echo {
 
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
+	// TODO: use accrual address to send async request
 	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader(), middleware.CheckAuth(ur))
@@ -122,10 +123,12 @@ func main() {
 
 	dsn := flag.String("d", "", "postgres DSN")
 	address := flag.String("a", "", "server address")
+	mongo := flag.String("m", "", "Mongo URI")
+	accrualAddress := flag.String("c", "", "accrual server address")
 
 	flag.Parse()
 
-	var dsnSet, addressSet bool
+	var dsnSet, addressSet, mongoSet, accrualAddressSet bool
 
 	if *dsn == "" {
 		*dsn, dsnSet = os.LookupEnv("DATABASE_URI")
@@ -133,6 +136,14 @@ func main() {
 
 	if *address == "" {
 		*address, addressSet = os.LookupEnv("RUN_ADDRESS")
+	}
+
+	if *mongo == "" {
+		*mongo, mongoSet = os.LookupEnv("MONGO_URI")
+	}
+
+	if *accrualAddress == "" {
+		*accrualAddress, accrualAddressSet = os.LookupEnv("ACCRUAL_ADDRESS")
 	}
 
 	if *dsn == "" && !dsnSet {
@@ -145,7 +156,17 @@ func main() {
 		util.GetLogger().Infoln("default value for server address used")
 	}
 
-	config := conf.Config{DatabaseURI: *dsn, ServerAddress: *address}
+	if *mongo == "" && !mongoSet {
+		*mongo = "mongodb://mongodb:27017"
+		util.GetLogger().Infoln("default value for Mongo URI used")
+	}
+
+	if *accrualAddress == "" && !accrualAddressSet {
+		*accrualAddress = "http://localhost:8085"
+		util.GetLogger().Infoln("default value for accrual service address used")
+	}
+
+	config := conf.Config{DatabaseURI: *dsn, ServerAddress: *address, MongoURI: *mongo, AccrualAddress: *accrualAddress}
 
 	util.GetLogger().Infoln(config)
 
@@ -156,5 +177,5 @@ func main() {
 	}
 	defer pool.Close()
 	util.GetLogger().Infoln("дошел до router")
-	router(pool).Start(config.ServerAddress)
+	router(pool, config.MongoURI, config.AccrualAddress).Start(config.ServerAddress)
 }
