@@ -67,6 +67,7 @@ jobs:
             export ACCRUAL_PORT=$(random unused-port)
           done
           export ACCRUAL_ADDRESS="http://localhost:$ACCRUAL_PORT"
+          echo $ACCRUAL_ADDRESS
 
       - name: Test
         run: |
