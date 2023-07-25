@@ -68,3 +68,7 @@ func (s *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) 
 	}
 	return s.repo.AddWithdrawal(ctx, withdrawal)
 }
+
+func (s *user) UpdateOrder(ctx context.Context, order domain.AccrualOrder) error {
+	return s.repo.UpdateOrder(ctx, order)
+}

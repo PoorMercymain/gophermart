@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -146,6 +147,32 @@ func (h *user) AddOrder(c echo.Context) error {
 		util.GetLogger().Infoln(err)
 		return err
 	}
+
+	go func() {
+		accrualWithEndpoint := c.Request().Context().Value(domain.Key("accrual_address")).(string) + "/api/orders/" + orderN
+		util.GetLogger().Infoln("requested", accrualWithEndpoint)
+		resp, err := http.Get(accrualWithEndpoint)
+		if err != nil {
+			util.GetLogger().Infoln(err)
+			return
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			util.GetLogger().Infoln(err)
+			return
+		}
+
+		var accrualOrder domain.AccrualOrder
+
+		err = json.Unmarshal(body, &accrualOrder)
+		if err != nil {
+			util.GetLogger().Infoln(err)
+			return
+		}
+	}()
+
 	c.Response().WriteHeader(http.StatusAccepted)
 	return nil
 }

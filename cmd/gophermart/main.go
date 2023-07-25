@@ -108,7 +108,7 @@ func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string) *echo.Ec
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
 	// TODO: use accrual address to send async request
-	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur))
+	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur), middleware.AddAccrualAddressToCtx(accrualAddress))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader(), middleware.CheckAuth(ur))
@@ -128,6 +128,7 @@ func main() {
 
 	flag.Parse()
 
+	// TODO: this needs refactoring
 	var dsnSet, addressSet, mongoSet, accrualAddressSet bool
 
 	if *dsn == "" {
@@ -158,7 +159,7 @@ func main() {
 
 	if *mongo == "" && !mongoSet {
 		*mongo = "mongodb://mongodb:27017"
-		util.GetLogger().Infoln("default value for Mongo URI used")
+		util.GetLogger().Infoln("default value for Mongo URI used, if mongo runs locally, use localhost instead of last mongodb word (example: mongodb://localhost:27017)")
 	}
 
 	if *accrualAddress == "" && !accrualAddressSet {

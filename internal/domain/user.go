@@ -14,6 +14,7 @@ type UserService interface {
 	ReadOrders(ctx context.Context) ([]Order, error)
 	ReadBalance(ctx context.Context) (Balance, error)
 	AddWithdrawal(ctx context.Context, withdrawal Withdrawal) error
+	UpdateOrder(ctx context.Context, order AccrualOrder) error
 }
 
 //go:generate mockgen -destination=mocks/repo_mock.gen.go -package=mocks . UserRepository
@@ -24,4 +25,5 @@ type UserRepository interface {
 	ReadOrders(ctx context.Context) ([]Order, error)
 	ReadBalance(ctx context.Context) (Balance, error)
 	AddWithdrawal(ctx context.Context, withdrawal Withdrawal) error
+	UpdateOrder(ctx context.Context, order AccrualOrder) error
 }
