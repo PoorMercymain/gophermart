@@ -64,7 +64,7 @@ jobs:
         run: |
           export ACCRUAL_PORT=$(random unused-port)
           while $(ACCRUAL_PORT) -eq 8080; do
-            ACCRUAL_PORT=$(random unused-port)
+            export ACCRUAL_PORT=$(random unused-port)
           done
           export ACCRUAL_ADDRESS=http://localhost:$(ACCRUAL_PORT)
       - name: Test
