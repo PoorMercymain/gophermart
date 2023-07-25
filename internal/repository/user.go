@@ -218,5 +218,6 @@ func (r *user) UpdateOrder(ctx context.Context, order domain.AccrualOrder) error
 		return err
 	}
 
+	util.GetLogger().Infoln("it works,", order, "is now updated!")
 	return tx.Commit(ctx)
 }
