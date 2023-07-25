@@ -62,15 +62,19 @@ jobs:
 
       - name: Test
         run: |
+          export ACCRUAL_PORT=$(random unused-port)
+          while ACCRUAL_PORT -eq 8080; do
+            ACCRUAL_PORT=$(random unused-port)
           gophermarttest \
             -test.v -test.run=^TestGophermart$ \
             -gophermart-binary-path=cmd/gophermart/gophermart \
             -gophermart-host=localhost \
             -gophermart-port=8080 \
             -gophermart-database-uri="postgresql://postgres:postgres@postgres/gophermart?sslmode=disable" \
+            -c=http://localhost:$(ACCRUAL_PORT)
             -accrual-binary-path=cmd/accrual/accrual \
             -accrual-host=localhost \
-            -accrual-port=$(random unused-port) \
+            -accrual-port=$(ACCRUAL_PORT) \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/accrual?sslmode=disable"
 
       - name: Archive logs
