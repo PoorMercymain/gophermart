@@ -67,7 +67,7 @@ jobs:
             export ACCRUAL_PORT=$(random unused-port)
           done
           export ACCRUAL_ADDRESS="http://localhost:$ACCRUAL_PORT"
-          echo $ACCRUAL_ADDRESS
+          echo $ACCRUAL_ADDRESS;
           gophermarttest \
             -test.v -test.run=^TestGophermart$ \
             -gophermart-binary-path=cmd/gophermart/gophermart \
