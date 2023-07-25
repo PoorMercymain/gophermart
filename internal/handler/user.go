@@ -7,7 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -131,7 +131,6 @@ func (h *user) AddOrder(c echo.Context) error {
 
 	orderN := scanner.Text()
 
-	// TODO: add goroutine to send req to accrual
 	err := h.srv.AddOrder(c.Request().Context(), orderN)
 	if errors.Is(err, domain.ErrorAlreadyRegistered) {
 		c.Response().WriteHeader(http.StatusOK)
@@ -158,7 +157,7 @@ func (h *user) AddOrder(c echo.Context) error {
 		}
 		defer resp.Body.Close()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			util.GetLogger().Infoln(err)
 			return
