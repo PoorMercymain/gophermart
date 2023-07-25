@@ -36,7 +36,7 @@ func testRouter(t *testing.T) *echo.Echo {
 
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
-	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader())
+	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader())
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader())
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader())
