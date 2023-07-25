@@ -60,13 +60,15 @@ jobs:
           (cd cmd/gophermart && go build -buildvcs=false -o gophermart)
           (cd cmd/accrual && go build -buildvcs=false -o accrual)
 
-      - name: Test
+      - name: Prepare port for accrual
         run: |
           export ACCRUAL_PORT=$(random unused-port)
-          while ACCRUAL_PORT -eq 8080; do
+          while $(ACCRUAL_PORT) -eq 8080; do
             ACCRUAL_PORT=$(random unused-port)
           done
           export ACCRUAL_ADDRESS=http://localhost:$(ACCRUAL_PORT)
+      - name: Test
+        run: |
           gophermarttest \
             -test.v -test.run=^TestGophermart$ \
             -gophermart-binary-path=cmd/gophermart/gophermart \
