@@ -71,6 +71,7 @@ jobs:
 
       - name: Test
         run: |
+          echo $ACCRUAL_PORT
           gophermarttest \
             -test.v -test.run=^TestGophermart$ \
             -gophermart-binary-path=cmd/gophermart/gophermart \
