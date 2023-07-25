@@ -66,6 +66,7 @@ jobs:
           while [ "$ACCRUAL_PORT" -eq 8080 ]; do
             export ACCRUAL_PORT=$(random unused-port)
           done
+          echo $ACCRUAL_PORT
           export ACCRUAL_ADDRESS="http://localhost:$ACCRUAL_PORT"
           echo $ACCRUAL_ADDRESS;
           gophermarttest \
