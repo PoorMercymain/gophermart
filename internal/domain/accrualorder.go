@@ -3,20 +3,20 @@ package domain
 import "encoding/json"
 
 type AccrualOrder struct {
-	Order   string `json:"order"`
-	Status  string `json:"status"`
-	Accrual accrual `json:"accrual"`
+	Order   string  `json:"order"`
+	Status  string  `json:"status"`
+	Accrual AccrualAmount `json:"accrual"`
 }
 
-type accrual int
+type AccrualAmount int
 
-func (a *accrual) UnmarshalJSON(data []byte) error {
+func (a *AccrualAmount) UnmarshalJSON(data []byte) error {
 	var accrualFloat float64
 
 	if err := json.Unmarshal(data, &accrualFloat); err != nil {
 		return err
 	}
 
-	*a = accrual(int(accrualFloat * 100))
+	*a = AccrualAmount(int(accrualFloat * 100))
 	return nil
 }
