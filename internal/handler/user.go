@@ -175,7 +175,7 @@ func (h *user) AddOrder(c echo.Context) error {
 				}
 				if accrualOrder.Status != previousAccrualOrder.Status {
 					previousAccrualOrder = accrualOrder
-					err = h.srv.UpdateOrder(c.Request().Context(), accrualOrder)
+					err = h.srv.UpdateOrder(context.Background(), accrualOrder)
 					if err != nil {
 						util.GetLogger().Infoln(err)
 						return
