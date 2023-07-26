@@ -29,7 +29,7 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 	}
 
 	//TODO: calculate real accrual, it's a stub
-	const calculateTime = 20
+	const calculateTime = 15
 	time.Sleep(time.Duration(calculateTime) * time.Second)
 
 	orderRecord.Status = domain.OrderStatusProcessed
