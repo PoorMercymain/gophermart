@@ -213,7 +213,7 @@ func (r *user) UpdateOrder(ctx context.Context, order domain.AccrualOrder) error
 	}
 	defer tx.Rollback(ctx)
 
-	_, err = tx.Exec(ctx, "UPDATE orders SET stat = $1, accrual = $2 WHERE num = $3", order.Status, order.Accrual, order.Order)
+	_, err = tx.Exec(ctx, "UPDATE orders SET stat = $1, accrual = $2 WHERE num = $3", order.Status, order.Accrual.Accrual, order.Order)
 	if err != nil {
 		return err
 	}
