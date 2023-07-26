@@ -213,6 +213,19 @@ func (r *user) UpdateOrder(ctx context.Context, order domain.AccrualOrder) error
 	}
 	defer tx.Rollback(ctx)
 
+	var accrual int
+	if order.Status == "PROCESSED" {
+		conn.QueryRow(ctx, "SELECT accrual FROM orders WHERE num = $1", order.Order).Scan(&accrual)
+		accrualDiff := order.Accrual.Accrual - accrual
+		if accrualDiff > 0 {
+			_, err = tx.Exec(ctx, "UPDATE balances SET balance = balance + $1 WHERE username = $2", accrualDiff, ctx.Value(domain.Key("login")))
+			if err != nil {
+				util.GetLogger().Infoln(err)
+				return err
+			}
+		}
+	}
+
 	_, err = tx.Exec(ctx, "UPDATE orders SET stat = $1, accrual = $2 WHERE num = $3", order.Status, order.Accrual.Accrual, order.Order)
 	if err != nil {
 		return err

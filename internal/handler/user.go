@@ -149,6 +149,7 @@ func (h *user) AddOrder(c echo.Context) error {
 
 	go func() {
 		accrualWithEndpoint := c.Request().Context().Value(domain.Key("accrual_address")).(string) + "/api/orders/" + orderN
+		login := c.Request().Context().Value(domain.Key("login")).(string)
 		var previousAccrualOrder domain.AccrualOrder
 		var accrualOrder domain.AccrualOrder
 			for {
@@ -166,8 +167,6 @@ func (h *user) AddOrder(c echo.Context) error {
 				return
 			}
 
-
-
 			if body != nil {
 				err = json.Unmarshal(body, &accrualOrder)
 				if err != nil {
@@ -176,7 +175,8 @@ func (h *user) AddOrder(c echo.Context) error {
 				}
 				if accrualOrder.Status != previousAccrualOrder.Status {
 					previousAccrualOrder = accrualOrder
-					err = h.srv.UpdateOrder(context.Background(), accrualOrder)
+					cont := context.WithValue(context.Background(), domain.Key("login"), login)
+					err = h.srv.UpdateOrder(cont, accrualOrder)
 					if err != nil {
 						util.GetLogger().Infoln(err)
 						return
