@@ -149,26 +149,47 @@ func (h *user) AddOrder(c echo.Context) error {
 
 	go func() {
 		accrualWithEndpoint := c.Request().Context().Value(domain.Key("accrual_address")).(string) + "/api/orders/" + orderN
-		util.GetLogger().Infoln("requested", accrualWithEndpoint)
-		resp, err := http.Get(accrualWithEndpoint)
-		if err != nil {
-			util.GetLogger().Infoln(err)
-			return
-		}
-		defer resp.Body.Close()
+		for {
+			util.GetLogger().Infoln("requested", accrualWithEndpoint)
+			resp, err := http.Get(accrualWithEndpoint)
+			if err != nil {
+				util.GetLogger().Infoln(err)
+				return
+			}
+			defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			util.GetLogger().Infoln(err)
-			return
-		}
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				util.GetLogger().Infoln(err)
+				return
+			}
 
-		var accrualOrder domain.AccrualOrder
+			var previousAccrualOrder domain.AccrualOrder
+			var accrualOrder domain.AccrualOrder
 
-		err = json.Unmarshal(body, &accrualOrder)
-		if err != nil {
-			util.GetLogger().Infoln(err)
-			return
+			if body != nil {
+				err = json.Unmarshal(body, &accrualOrder)
+				if err != nil {
+					util.GetLogger().Infoln(err)
+					return
+				}
+				if accrualOrder.Status != previousAccrualOrder.Status {
+					previousAccrualOrder = accrualOrder
+					err = h.srv.UpdateOrder(c.Request().Context(), accrualOrder)
+					if err != nil {
+						util.GetLogger().Infoln(err)
+						return
+					}
+					if accrualOrder.Status == "PROCESSED" || accrualOrder.Status == "INVALID" {
+						util.GetLogger().Infoln("got", accrualOrder.Status)
+						return
+					}
+				}
+			} else if resp.StatusCode == http.StatusNoContent {
+				util.GetLogger().Infoln("order was not registred by accrual service")
+				return
+			}
+			time.Sleep(time.Second)
 		}
 	}()
 
@@ -248,6 +269,7 @@ func (h *user) ReadBalance(c echo.Context) error {
 }
 
 func (h *user) AddWithdrawal(c echo.Context) error {
+	util.GetLogger().Infoln("requested withdrawal")
 	if !IsJSONContentTypeCorrect(c.Request()) {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return nil
