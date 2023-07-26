@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"strings"
 
@@ -49,6 +50,8 @@ func (h *StorageHandler) ProcessGetOrdersRequest(c echo.Context) (err error) {
 		return
 	}
 	util.GetLogger().Infoln(*order)
+
+	order.Accrual = math.Floor(order.Accrual)
 
 	out, err := json.Marshal(order)
 	if err != nil {
