@@ -8,7 +8,9 @@ type AccrualOrder struct {
 	Accrual AccrualAmount `json:"accrual"`
 }
 
-type AccrualAmount int
+type AccrualAmount struct {
+	Accrual int
+}
 
 func (a *AccrualAmount) UnmarshalJSON(data []byte) error {
 	var accrualFloat float64
@@ -17,6 +19,6 @@ func (a *AccrualAmount) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*a = AccrualAmount(int(accrualFloat * 100))
+	a.Accrual = int(accrualFloat * 100)
 	return nil
 }

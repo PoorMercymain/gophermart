@@ -25,41 +25,41 @@ type dbStorage struct {
 func NewDBStorage(DSN string) (storage interfaces.Storage, err error) {
 	pg, err := sql.Open("pgx/v5", DSN)
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return
 	}
 	err = goose.SetDialect("postgres")
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return
 	}
 
 	err = pg.PingContext(context.Background())
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return
 	}
 
 	err = goose.Run("up", pg, "./pkg/migrations_accrual")
 	if err != nil {
-		fmt.Println(err)
+		util.GetLogger().Infoln(err)
 		return
 	}
 	pg.Close()
 
 	config, err := pgxpool.ParseConfig(DSN)
 	if err != nil {
-		fmt.Println("Error parsing DSN:", err)
+		util.GetLogger().Infoln("Error parsing DSN:", err)
 		return
 	}
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
-		fmt.Println("Error creating pgxpool:", err)
+		util.GetLogger().Infoln("Error creating pgxpool:", err)
 		return
 	}
 
-	fmt.Println("Pool created", pool, err)
+	util.GetLogger().Infoln("Pool created", pool, err)
 
 	storage = &dbStorage{pgxPool: pool, mutex: &sync.Mutex{}}
 	return

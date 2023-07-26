@@ -183,7 +183,7 @@ func (r *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) 
 
 	tx.QueryRow(ctx, "SELECT balance, withdrawn FROM balances WHERE username = $1", ctx.Value(domain.Key("login"))).Scan(&balance.Balance, &balance.Withdrawn)
 
-	if balance.Balance < int(withdrawal.WithdrawalAmount) {
+	if balance.Balance < withdrawal.WithdrawalAmount.Withdrawal {
 		return domain.ErrorNotEnoughPoints
 	}
 

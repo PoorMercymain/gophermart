@@ -7,7 +7,9 @@ type Withdrawal struct {
 	WithdrawalAmount WithdrawalAmount `json:"sum"`
 }
 
-type WithdrawalAmount int
+type WithdrawalAmount struct {
+	Withdrawal int
+}
 
 func (w *WithdrawalAmount) UnmarshalJSON(data []byte) error {
 	var withdrawalFloat float64
@@ -16,6 +18,6 @@ func (w *WithdrawalAmount) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*w = WithdrawalAmount(int(withdrawalFloat * 100))
+	w.Withdrawal = int(withdrawalFloat * 100)
 	return nil
 }
