@@ -302,6 +302,72 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 	return nil
 }
 
+func (h *user) HandleStartup(serverAddress string) error {
+	for batchNumber := 0; ; batchNumber++ {
+		unprocessedOrders, err := h.srv.GetUnprocessedBatch(context.Background(), batchNumber)
+		if err != nil {
+			return err
+		}
+
+		if len(unprocessedOrders) == 0 {
+			util.GetLogger().Infoln("no unprocessed orders left")
+			break
+		}
+
+		for _, order := range unprocessedOrders {
+			ord := order
+			go func() {
+				accrualWithEndpoint := serverAddress + "/api/orders/" + ord.Accrual.Order
+				login := ord.Username
+				var previousAccrualOrder domain.AccrualOrder
+				var accrualOrder domain.AccrualOrder
+					for {
+					util.GetLogger().Infoln("requested", accrualWithEndpoint)
+					resp, err := http.Get(accrualWithEndpoint)
+					if err != nil {
+						util.GetLogger().Infoln(err)
+						return
+					}
+					defer resp.Body.Close()
+
+					body, err := io.ReadAll(resp.Body)
+					if err != nil {
+						util.GetLogger().Infoln(err)
+						return
+					}
+
+					if body != nil {
+						err = json.Unmarshal(body, &accrualOrder)
+						if err != nil {
+							util.GetLogger().Infoln(err)
+							return
+						}
+						if accrualOrder.Status != previousAccrualOrder.Status {
+							previousAccrualOrder = accrualOrder
+							cont := context.WithValue(context.Background(), domain.Key("login"), login)
+							err = h.srv.UpdateOrder(cont, accrualOrder)
+							if err != nil {
+								util.GetLogger().Infoln(err)
+								return
+							}
+							if accrualOrder.Status == "PROCESSED" || accrualOrder.Status == "INVALID" {
+								util.GetLogger().Infoln("got", accrualOrder.Status)
+								return
+							}
+						}
+					} else if resp.StatusCode == http.StatusNoContent {
+						util.GetLogger().Infoln("order was not registred by accrual service")
+						return
+					}
+					time.Sleep(time.Second)
+				}
+			}()
+		}
+	}
+	
+	return nil
+}
+
 func IsJSONContentTypeCorrect(r *http.Request) bool {
 	if len(r.Header.Values("Content-Type")) == 0 {
 		return false

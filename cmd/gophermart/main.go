@@ -105,6 +105,13 @@ func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string) *echo.Ec
 	us := service.NewUser(ur)
 	uh := handler.NewUser(us)
 
+	util.GetLogger().Infoln("---------------------")
+	err = uh.HandleStartup(accrualAddress)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+	}
+	util.GetLogger().Infoln("---------------------")
+
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
 	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur), middleware.AddAccrualAddressToCtx(accrualAddress))

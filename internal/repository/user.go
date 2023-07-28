@@ -187,12 +187,12 @@ func (r *user) AddWithdrawal(ctx context.Context, withdrawal domain.Withdrawal) 
 		return domain.ErrorNotEnoughPoints
 	}
 
-	_, err = tx.Exec(ctx, "UPDATE balances SET balance = balance - $1, withdrawn = withdrawn + $2 WHERE username = $3", withdrawal.WithdrawalAmount, withdrawal.WithdrawalAmount, ctx.Value(domain.Key("login")))
+	_, err = tx.Exec(ctx, "UPDATE balances SET balance = balance - $1, withdrawn = withdrawn + $2 WHERE username = $3", withdrawal.WithdrawalAmount.Withdrawal, withdrawal.WithdrawalAmount.Withdrawal, ctx.Value(domain.Key("login")))
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec(ctx, "INSERT INTO withdrawals VALUES($1, $2, $3, $4)", ctx.Value(domain.Key("login")), withdrawal.OrderNumber, withdrawal.WithdrawalAmount, time.Now())
+	_, err = tx.Exec(ctx, "INSERT INTO withdrawals VALUES($1, $2, $3, $4)", ctx.Value(domain.Key("login")), withdrawal.OrderNumber, withdrawal.WithdrawalAmount.Withdrawal, time.Now())
 	if err != nil {
 		return err
 	}
@@ -233,4 +233,33 @@ func (r *user) UpdateOrder(ctx context.Context, order domain.AccrualOrder) error
 
 	util.GetLogger().Infoln("it works,", order, "is now updated!")
 	return tx.Commit(ctx)
+}
+
+func (r *user) GetUnprocessedBatch(ctx context.Context, batchNumber int) ([]domain.AccrualOrderWithUsername, error) {
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return make([]domain.AccrualOrderWithUsername, 0), err
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(ctx, "SELECT num, stat, accrual, username FROM orders WHERE stat != 'PROCESSED' AND stat != 'INVALID' LIMIT 10 OFFSET $1", batchNumber * 10)
+	if err != nil {
+		return make([]domain.AccrualOrderWithUsername, 0), err
+	}
+	defer rows.Close()
+
+	unprocessedBatch := make([]domain.AccrualOrderWithUsername, 0)
+
+	for rows.Next() {
+		var unprocessedBatchElement domain.AccrualOrderWithUsername
+
+		err = rows.Scan(&unprocessedBatchElement.Accrual.Order, &unprocessedBatchElement.Accrual.Status, &unprocessedBatchElement.Accrual.Accrual.Accrual, &unprocessedBatchElement.Username)
+		if err != nil {
+			return make([]domain.AccrualOrderWithUsername, 0), err
+		}
+
+		unprocessedBatch = append(unprocessedBatch, unprocessedBatchElement)
+	}
+
+	return unprocessedBatch, nil
 }

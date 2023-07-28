@@ -78,6 +78,21 @@ func (mr *MockUserRepositoryMockRecorder) GetPasswordHash(arg0, arg1 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPasswordHash", reflect.TypeOf((*MockUserRepository)(nil).GetPasswordHash), arg0, arg1)
 }
 
+// GetUnprocessedBatch mocks base method.
+func (m *MockUserRepository) GetUnprocessedBatch(arg0 context.Context, arg1 int) ([]domain.AccrualOrderWithUsername, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUnprocessedBatch", arg0, arg1)
+	ret0, _ := ret[0].([]domain.AccrualOrderWithUsername)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUnprocessedBatch indicates an expected call of GetUnprocessedBatch.
+func (mr *MockUserRepositoryMockRecorder) GetUnprocessedBatch(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUnprocessedBatch", reflect.TypeOf((*MockUserRepository)(nil).GetUnprocessedBatch), arg0, arg1)
+}
+
 // ReadBalance mocks base method.
 func (m *MockUserRepository) ReadBalance(arg0 context.Context) (domain.Balance, error) {
 	m.ctrl.T.Helper()

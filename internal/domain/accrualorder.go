@@ -22,3 +22,8 @@ func (a *AccrualAmount) UnmarshalJSON(data []byte) error {
 	a.Accrual = int(accrualFloat * 100)
 	return nil
 }
+
+type AccrualOrderWithUsername struct {
+	Accrual AccrualOrder
+	Username string
+}
