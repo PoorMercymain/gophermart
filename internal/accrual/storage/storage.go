@@ -209,12 +209,15 @@ func (dbs *dbStorage) GetGoods(ctx context.Context) (goods []*domain.Goods, err 
 		return
 	}
 
-	var goodsRecord = &domain.Goods{}
 	goods = make([]*domain.Goods, totalRows)
 	counter := 0
-
 	for rows.Next() {
-		rows.Scan(goodsRecord.Match, goodsRecord.Reward, goodsRecord.RewardType)
+		var goodsRecord = &domain.Goods{}
+		err = rows.Scan(&goodsRecord.Match, &goodsRecord.Reward, &goodsRecord.RewardType)
+		if err != nil {
+			util.GetLogger().Infoln(err)
+			return
+		}
 		goods[counter] = goodsRecord
 		counter++
 	}
