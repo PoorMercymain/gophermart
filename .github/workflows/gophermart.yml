@@ -12,7 +12,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    container: golang:1.19
+    container: golang:1.20
 
     services:
       postgres:
@@ -25,6 +25,9 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+
+      mongodb:
+        image: mongo:latest
 
     steps:
       - name: Checkout code
@@ -61,3 +64,10 @@ jobs:
             -accrual-host=localhost \
             -accrual-port=$(random unused-port) \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable"
+
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: logfile.log

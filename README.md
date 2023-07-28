@@ -1,3 +1,24 @@
+# Как запускать
+Запустить Docker, после чего в терминале в корневой директории проекта выполнить команду
+```
+docker-compose up -d
+```
+После этого в терминале в той же директории
+```
+go run .\cmd\gophermart\main.go -d="host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable"
+```
+После этого должен заработать gophermart
+
+# Как запустить тесты
+В корневой директории проекта в терминале прописываем
+```
+go generate ./...
+```
+Запускаем тесты также в терминале корневой директории
+```
+go test ./... -v --count=1
+```
+
 # go-musthave-group-diploma-tpl
 
 Шаблон репозитория для группового дипломного проекта курса "Go-разработчик"
