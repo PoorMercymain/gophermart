@@ -42,7 +42,7 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 				case domain.RewardTypePt:
 					orderRecord.Accrual += currReward.Reward
 				case domain.RewardTypePercent:
-					orderRecord.Accrual += currReward.Reward * currGoods.Price
+					orderRecord.Accrual += currReward.Reward * currGoods.Price / 100
 				}
 				break
 			}
@@ -50,7 +50,6 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 
 	}
 	orderRecord.Status = domain.OrderStatusProcessed
-
 	err = storage.UpdateOrder(ctx, &orderRecord)
 	if err != nil {
 		util.GetLogger().Infoln(err)

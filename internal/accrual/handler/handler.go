@@ -51,7 +51,7 @@ func (h *StorageHandler) ProcessGetOrdersRequest(c echo.Context) (err error) {
 	}
 	util.GetLogger().Infoln(*order)
 
-	order.Accrual = math.Floor(order.Accrual)
+	order.Accrual = math.Round(order.Accrual*100) / 100
 
 	util.GetLogger().Infoln("sent from accrual:", order)
 	out, err := json.Marshal(order)
