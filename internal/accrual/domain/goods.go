@@ -1,5 +1,8 @@
 package domain
 
+const RewardTypePt = "pt"
+const RewardTypePercent = "%"
+
 type Goods struct {
 	Match      string  `json:"match" valid:"-"`
 	Reward     float64 `json:"reward" valid:"-"`

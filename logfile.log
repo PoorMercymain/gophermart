@@ -4,3 +4,44 @@
 {"level":"info","ts":1690322555.105685,"caller":"handler/handler.go:51","msg":"{7567 PROCESSED 202.68970242460682}"}
 {"level":"info","ts":1690322882.371367,"caller":"handler/handler.go:34","msg":"7567"}
 {"level":"info","ts":1690322882.3781152,"caller":"handler/handler.go:52","msg":"{7567 PROCESSED 202.68970242460682}"}
+{"level":"info","ts":1690391889.74103,"caller":"handler/handler.go:34","msg":"7567"}
+{"level":"info","ts":1690391889.749629,"caller":"handler/handler.go:52","msg":"{7567 PROCESSED 202.68970242460682}"}
+{"level":"info","ts":1690391968.564024,"caller":"handler/handler.go:34","msg":"7567"}
+{"level":"info","ts":1690391968.5646038,"caller":"handler/handler.go:52","msg":"{7567 PROCESSED 202.68970242460682}"}
+{"level":"info","ts":1690392058.371905,"caller":"handler/handler.go:34","msg":"7567"}
+{"level":"info","ts":1690392058.372397,"caller":"handler/handler.go:52","msg":"{7567 PROCESSED 202.68970242460682}"}
+{"level":"info","ts":1690392063.057812,"caller":"handler/handler.go:34","msg":"75679"}
+{"level":"info","ts":1690392063.0579169,"caller":"handler/handler.go:39","msg":"invalid number"}
+{"level":"info","ts":1690396367.6485372,"caller":"gophermart/main.go:121","msg":"логгер запустился"}
+{"level":"info","ts":1690396367.650645,"caller":"gophermart/main.go:140","msg":"default value for dsn used"}
+{"level":"info","ts":1690396367.650679,"caller":"gophermart/main.go:145","msg":"default value for server address used"}
+{"level":"info","ts":1690396367.650729,"caller":"gophermart/main.go:150","msg":"{localhost:8080 host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable}"}
+{"level":"info","ts":1690396367.654411,"caller":"gophermart/main.go:40","msg":"failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: dial error (dial tcp 127.0.0.1:3000: connect: connection refused)"}
+{"level":"info","ts":1690396367.6544619,"caller":"util/logger.go:33","msg":"[failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: dial error (dial tcp 127.0.0.1:3000: connect: connection refused)]"}
+{"level":"info","ts":1690396375.689614,"caller":"gophermart/main.go:121","msg":"логгер запустился"}
+{"level":"info","ts":1690396375.689785,"caller":"gophermart/main.go:140","msg":"default value for dsn used"}
+{"level":"info","ts":1690396375.6898181,"caller":"gophermart/main.go:145","msg":"default value for server address used"}
+{"level":"info","ts":1690396375.689867,"caller":"gophermart/main.go:150","msg":"{localhost:8080 host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable}"}
+{"level":"info","ts":1690396375.694138,"caller":"gophermart/main.go:40","msg":"failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: dial error (dial tcp 127.0.0.1:3000: connect: connection refused)"}
+{"level":"info","ts":1690396375.69421,"caller":"util/logger.go:33","msg":"[failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: dial error (dial tcp 127.0.0.1:3000: connect: connection refused)]"}
+{"level":"info","ts":1690396963.541891,"caller":"gophermart/main.go:121","msg":"логгер запустился"}
+{"level":"info","ts":1690396963.542028,"caller":"gophermart/main.go:140","msg":"default value for dsn used"}
+{"level":"info","ts":1690396963.542057,"caller":"gophermart/main.go:145","msg":"default value for server address used"}
+{"level":"info","ts":1690396963.542104,"caller":"gophermart/main.go:150","msg":"{localhost:8080 host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable}"}
+{"level":"info","ts":1690396963.545995,"caller":"gophermart/main.go:40","msg":"failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: dial error (dial tcp 127.0.0.1:3000: connect: connection refused)"}
+{"level":"info","ts":1690396963.546108,"caller":"util/logger.go:33","msg":"[failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: dial error (dial tcp 127.0.0.1:3000: connect: connection refused)]"}
+{"level":"info","ts":1690397136.49934,"caller":"gophermart/main.go:121","msg":"логгер запустился"}
+{"level":"info","ts":1690397136.499467,"caller":"gophermart/main.go:140","msg":"default value for dsn used"}
+{"level":"info","ts":1690397136.499496,"caller":"gophermart/main.go:145","msg":"default value for server address used"}
+{"level":"info","ts":1690397136.499541,"caller":"gophermart/main.go:150","msg":"{localhost:8080 host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=5432 sslmode=disable}"}
+{"level":"info","ts":1690397136.5107882,"caller":"gophermart/main.go:40","msg":"failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: server error (FATAL: role \"gophermart-postgres\" does not exist (SQLSTATE 28000))"}
+{"level":"info","ts":1690397136.510845,"caller":"util/logger.go:33","msg":"[failed to connect to `host=localhost user=gophermart-postgres database=gophermart-postgres`: server error (FATAL: role \"gophermart-postgres\" does not exist (SQLSTATE 28000))]"}
+{"level":"info","ts":1690397703.118725,"caller":"gophermart/main.go:121","msg":"логгер запустился"}
+{"level":"info","ts":1690397703.118865,"caller":"gophermart/main.go:140","msg":"default value for dsn used"}
+{"level":"info","ts":1690397703.1188931,"caller":"gophermart/main.go:145","msg":"default value for server address used"}
+{"level":"info","ts":1690397703.118936,"caller":"gophermart/main.go:150","msg":"{localhost:8080 host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=5432 sslmode=disable}"}
+{"level":"info","ts":1690397703.1538079,"caller":"gophermart/main.go:65","msg":"норм1 &{0 0 0 0xc0000aac80 0xc0002720c0 <nil> <nil> <nil> <nil> <nil> 0 8 3600000000000 0 1800000000000 60000000000 0xc000270300 {0 {0 0}} 0xc000270360} <nil>"}
+{"level":"info","ts":1690397703.153894,"caller":"gophermart/main.go:158","msg":"дошел до router"}
+{"level":"info","ts":1690397733.15329,"caller":"util/logger.go:33","msg":"[server selection error: server selection timeout, current topology: { Type: Unknown, Servers: [{ Addr: mongodb:27017, Type: Unknown, Last error: dial tcp: lookup mongodb: no such host }, ] }]"}
+{"level":"info","ts":1690397763.1520839,"caller":"util/logger.go:33","msg":"[server selection error: server selection timeout, current topology: { Type: Unknown, Servers: [{ Addr: mongodb:27017, Type: Unknown, Last error: dial tcp: lookup mongodb: no such host }, ] }]"}
+{"level":"info","ts":1690397763.157096,"caller":"util/logger.go:33","msg":"[норм]"}

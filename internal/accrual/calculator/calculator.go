@@ -2,12 +2,10 @@ package calculator
 
 import (
 	"context"
-	"math/rand"
-	"time"
-
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
 	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces"
 	"github.com/PoorMercymain/gophermart/pkg/util"
+	"strings"
 )
 
 func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfaces.Storage) {
@@ -28,12 +26,29 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 		return
 	}
 
-	//TODO: calculate real accrual, it's a stub
-	const calculateTime = 20
-	time.Sleep(time.Duration(calculateTime) * time.Second)
+	goodsRewards, err := storage.GetGoods(ctx)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		cancelCtx(err)
+		return
+	}
 
+	for _, currGoods := range order.Goods {
+		//find first matching reward for current goods
+		for _, currReward := range goodsRewards {
+			if strings.Contains(currGoods.Description, currReward.Match) {
+				switch currReward.RewardType {
+				case domain.RewardTypePt:
+					orderRecord.Accrual += currReward.Reward
+				case domain.RewardTypePercent:
+					orderRecord.Accrual += currReward.Reward * currGoods.Price
+				}
+				break
+			}
+		}
+
+	}
 	orderRecord.Status = domain.OrderStatusProcessed
-	orderRecord.Accrual = 1000 * rand.Float64()
 
 	err = storage.UpdateOrder(ctx, &orderRecord)
 	if err != nil {
