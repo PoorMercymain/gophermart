@@ -184,7 +184,7 @@ func (dbs *dbStorage) GetOrder(ctx context.Context, number *string) (order *doma
 	return
 }
 
-// TODO: cache it, update cache on StoreGoodsReward
+//TODO: cache it, update cache on StoreGoodsReward
 
 func (dbs *dbStorage) GetGoods(ctx context.Context) (goods []*domain.Goods, err error) {
 	conn, err := dbs.pgxPool.Acquire(ctx)
