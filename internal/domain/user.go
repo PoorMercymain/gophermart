@@ -18,6 +18,7 @@ type UserService interface {
 	AddWithdrawal(ctx context.Context, withdrawal Withdrawal) error
 	UpdateOrder(ctx context.Context, order AccrualOrder) error
 	GetUnprocessedBatch(ctx context.Context, batchNumber int) ([]AccrualOrderWithUsername, error)
+	ReadWithdrawals(ctx context.Context) ([]WithdrawalOutput, error)
 }
 
 //go:generate mockgen -destination=mocks/repo_mock.gen.go -package=mocks . UserRepository
@@ -30,4 +31,5 @@ type UserRepository interface {
 	AddWithdrawal(ctx context.Context, withdrawal Withdrawal) error
 	UpdateOrder(ctx context.Context, order AccrualOrder) error
 	GetUnprocessedBatch(ctx context.Context, batchNumber int) ([]AccrualOrderWithUsername, error)
+	ReadWithdrawals(ctx context.Context) ([]WithdrawalOutput, error)
 }

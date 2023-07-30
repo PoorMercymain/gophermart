@@ -76,3 +76,7 @@ func (s *user) UpdateOrder(ctx context.Context, order domain.AccrualOrder) error
 func (s *user) GetUnprocessedBatch(ctx context.Context, batchNumber int) ([]domain.AccrualOrderWithUsername, error) {
 	return s.repo.GetUnprocessedBatch(ctx, batchNumber)
 }
+
+func (s *user) ReadWithdrawals(ctx context.Context) ([]domain.WithdrawalOutput, error) {
+	return s.repo.ReadWithdrawals(ctx)
+}

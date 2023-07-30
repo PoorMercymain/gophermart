@@ -364,7 +364,66 @@ func (h *user) HandleStartup(serverAddress string) error {
 			}()
 		}
 	}
-	
+
+	return nil
+}
+
+func (h *user) ReadWithdrawals(c echo.Context) error {
+	page, err := strconv.Atoi(c.Request().Header.Get("page"))
+	if err != nil && c.Request().Header.Get("page") != "" {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	if c.Request().Header.Get("page") == "" || page == 0 {
+		page = 1
+	} else if page < 0 {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
+	}
+
+	ctx := context.WithValue(c.Request().Context(), domain.Key("page"), page)
+	c.SetRequest(c.Request().WithContext(ctx))
+
+	withdrawals, err := h.srv.ReadWithdrawals(c.Request().Context())
+	if err != nil {
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	if len(withdrawals) == 0 {
+		c.Response().WriteHeader(http.StatusNoContent)
+		return nil
+	}
+
+	var withdrawalsBytes []byte
+	buf := bytes.NewBuffer(withdrawalsBytes)
+	err = json.NewEncoder(buf).Encode(withdrawals)
+	if err != nil {
+		util.GetLogger().Errorln(err)
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+	c.Response().Header().Set("Content-Type", "application/json")
+
+	if len(buf.Bytes()) > 1024 {
+		acceptsEncoding := c.Request().Header.Values("Accept-Encoding")
+		for _, encoding := range acceptsEncoding {
+			if strings.Contains(encoding, "gzip") {
+				c.Response().Header().Set(echo.HeaderContentEncoding, "gzip")
+				gz := gzip.NewWriter(c.Response().Writer)
+				defer gz.Close()
+
+				c.Response().Writer = domain.GzipResponseWriter{
+					Writer:         gz,
+					ResponseWriter: c.Response().Writer,
+				}
+				util.GetLogger().Infoln("gzip used")
+				break
+			}
+		}
+	}
+
+	c.Response().Write(buf.Bytes())
 	return nil
 }
 
