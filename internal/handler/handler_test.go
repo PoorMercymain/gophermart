@@ -30,16 +30,18 @@ func testRouter(t *testing.T) *echo.Echo {
 	mockRepo.EXPECT().ReadOrders(gomock.Any()).Return(nil, nil).AnyTimes()
 	mockRepo.EXPECT().ReadBalance(gomock.Any()).Return(domain.Balance{}, nil).AnyTimes()
 	mockRepo.EXPECT().AddWithdrawal(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	mockRepo.EXPECT().ReadWithdrawals(gomock.Any()).Return(nil, nil).AnyTimes()
 
 	us := service.NewUser(mockRepo)
 	uh := NewUser(us)
 
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
-	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""))
+	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""),middleware.AddTestingToCtx())
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader())
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader())
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader())
+	e.GET("/api/user/balance/withdrawals", uh.ReadWithdrawals, middleware.UseGzipReader())
 
 	return e
 }
@@ -81,6 +83,7 @@ func TestRouter(t *testing.T) {
 		{"/api/user/orders", http.MethodGet, http.StatusNoContent, ""},
 		{"/api/user/balance", http.MethodGet, http.StatusOK, ""},
 		{"/api/user/balance/withdraw", http.MethodPost, http.StatusOK, "{\"order\": \"573956\", \"sum\": 0}"},
+		{"/api/user/balance/withdrawals", http.MethodGet, http.StatusNoContent, ""},
 	}
 
 	for _, testCase := range testTable {

@@ -147,52 +147,55 @@ func (h *user) AddOrder(c echo.Context) error {
 		return err
 	}
 
-	go func() {
-		accrualWithEndpoint := c.Request().Context().Value(domain.Key("accrual_address")).(string) + "/api/orders/" + orderN
-		login := c.Request().Context().Value(domain.Key("login")).(string)
-		var previousAccrualOrder domain.AccrualOrder
-		var accrualOrder domain.AccrualOrder
-			for {
-			util.GetLogger().Infoln("requested", accrualWithEndpoint)
-			resp, err := http.Get(accrualWithEndpoint)
-			if err != nil {
-				util.GetLogger().Infoln(err)
-				return
-			}
-			defer resp.Body.Close()
-
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				util.GetLogger().Infoln(err)
-				return
-			}
-
-			if body != nil {
-				err = json.Unmarshal(body, &accrualOrder)
+	if c.Request().Context().Value(domain.Key("testing")) != "t" {
+		go func() {
+			accrualWithEndpoint := c.Request().Context().Value(domain.Key("accrual_address")).(string) + "/api/orders/" + orderN
+			login := c.Request().Context().Value(domain.Key("login")).(string)
+			var previousAccrualOrder domain.AccrualOrder
+			var accrualOrder domain.AccrualOrder
+				for {
+				util.GetLogger().Infoln("requested", accrualWithEndpoint)
+				resp, err := http.Get(accrualWithEndpoint)
 				if err != nil {
 					util.GetLogger().Infoln(err)
 					return
 				}
-				if accrualOrder.Status != previousAccrualOrder.Status {
-					previousAccrualOrder = accrualOrder
-					cont := context.WithValue(context.Background(), domain.Key("login"), login)
-					err = h.srv.UpdateOrder(cont, accrualOrder)
+				defer resp.Body.Close()
+
+				body, err := io.ReadAll(resp.Body)
+				if err != nil {
+					util.GetLogger().Infoln(err)
+					return
+				}
+
+				if body != nil {
+					err = json.Unmarshal(body, &accrualOrder)
 					if err != nil {
 						util.GetLogger().Infoln(err)
 						return
 					}
-					if accrualOrder.Status == "PROCESSED" || accrualOrder.Status == "INVALID" {
-						util.GetLogger().Infoln("got", accrualOrder.Status)
-						return
+					if accrualOrder.Status != previousAccrualOrder.Status {
+						previousAccrualOrder = accrualOrder
+						cont := context.WithValue(context.Background(), domain.Key("login"), login)
+						err = h.srv.UpdateOrder(cont, accrualOrder)
+						if err != nil {
+							util.GetLogger().Infoln(err)
+							return
+						}
+						if accrualOrder.Status == "PROCESSED" || accrualOrder.Status == "INVALID" {
+							util.GetLogger().Infoln("got", accrualOrder.Status)
+							return
+						}
 					}
+				} else if resp.StatusCode == http.StatusNoContent {
+					util.GetLogger().Infoln("order was not registred by accrual service")
+					return
 				}
-			} else if resp.StatusCode == http.StatusNoContent {
-				util.GetLogger().Infoln("order was not registred by accrual service")
-				return
+				time.Sleep(time.Second)
 			}
-			time.Sleep(time.Second)
-		}
-	}()
+		}()
+	}
+
 
 	c.Response().WriteHeader(http.StatusAccepted)
 	return nil
