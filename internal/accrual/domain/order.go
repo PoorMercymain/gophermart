@@ -11,8 +11,8 @@ type OrderGoods struct {
 }
 
 type Order struct {
-	Number string       `json:"order"`
-	Goods  []OrderGoods `json:"goods"`
+	Number string        `json:"order"`
+	Goods  []*OrderGoods `json:"goods"`
 }
 
 type OrderRecord struct {

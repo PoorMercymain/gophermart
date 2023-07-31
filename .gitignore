@@ -33,3 +33,6 @@ gophermart-postgres/
 # Mocks
 # temporary commented
 # internal/domain/mocks/
+
+# Logs
+*.log

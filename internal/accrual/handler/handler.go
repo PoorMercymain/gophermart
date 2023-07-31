@@ -11,7 +11,7 @@ import (
 
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/asaskevich/govalidator"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 
 	"github.com/PoorMercymain/gophermart/internal/accrual/calculator"
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"

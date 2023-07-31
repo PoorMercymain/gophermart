@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/jackc/pgerrcode"
@@ -81,10 +80,8 @@ func (dbs *dbStorage) StoreGoodsReward(ctx context.Context, goods *domain.Goods)
 
 	var pgErr *pgconn.PgError
 
-	currInsertValues := fmt.Sprintf("INSERT INTO goods (id, match, reward, reward_type) "+
-		"VALUES(DEFAULT, '%v', %v, '%v')", goods.Match, goods.Reward, goods.RewardType)
-
-	_, err = tx.Exec(ctx, currInsertValues)
+	_, err = tx.Exec(ctx, "INSERT INTO goods (id, match, reward, reward_type) "+
+		"VALUES(DEFAULT, $1, $2, $3)", goods.Match, goods.Reward, goods.RewardType)
 
 	if err != nil {
 
@@ -121,10 +118,8 @@ func (dbs *dbStorage) StoreOrder(ctx context.Context, order *domain.OrderRecord)
 
 	var pgErr *pgconn.PgError
 
-	currInsertValues := fmt.Sprintf("INSERT INTO orders (id, number, status, accrual) VALUES"+
-		"(DEFAULT, '%v', '%v', %v)", order.Number, order.Status, order.Accrual)
-
-	_, err = tx.Exec(ctx, currInsertValues)
+	_, err = tx.Exec(ctx, "INSERT INTO orders (id, number, status, accrual) VALUES"+
+		"(DEFAULT, $1, $2, $3)", order.Number, order.Status, order.Accrual)
 
 	if err != nil {
 		util.GetLogger().Infoln(pgErr)
@@ -155,10 +150,8 @@ func (dbs *dbStorage) UpdateOrder(ctx context.Context, order *domain.OrderRecord
 
 	var pgErr *pgconn.PgError
 
-	currInsertValues := fmt.Sprintf("UPDATE orders SET status = '%v', accrual = %v "+
-		"WHERE number = '%v'", order.Status, order.Accrual, order.Number)
-
-	_, err = tx.Exec(ctx, currInsertValues)
+	_, err = tx.Exec(ctx, "UPDATE orders SET status = $1, accrual = $2 "+
+		"WHERE number = $3", order.Status, order.Accrual, order.Number)
 
 	if err != nil {
 		util.GetLogger().Infoln(pgErr)
@@ -221,6 +214,19 @@ func (dbs *dbStorage) GetGoods(ctx context.Context) (goods []*domain.Goods, err 
 		goods[counter] = goodsRecord
 		counter++
 	}
+
+	return
+}
+
+func (dbs *dbStorage) StoreOrderGoods(ctx context.Context, orderNum *string, goods []*domain.OrderGoods) (err error) {
+
+	return
+}
+func (dbs *dbStorage) GetOrderGoods(ctx context.Context, num *string) (orderGoods []*domain.OrderGoods, err error) {
+
+	return
+}
+func (dbs *dbStorage) GetUnprocessedOrders(ctx context.Context) (orders []*domain.OrderRecord, err error) {
 
 	return
 }
