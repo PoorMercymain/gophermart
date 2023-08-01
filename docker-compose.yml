@@ -19,3 +19,26 @@ services:
     ports:
       - "3000:5432"
     command: [ "postgres", "-c", "log_statement=all" ]
+  gophermart:
+    build:
+      context: .
+      dockerfile: DockerfileGophermart
+    depends_on:
+      - mongodb
+      - postgres
+      - accrual
+    environment:
+      - DATABASE_URI=${GOPHERMART_DATABASE_URI}
+      - ACCRUAL_ADDRESS=${ACCRUAL_ADDRESS}
+      - RUN_ADDRESS=${GOPHERMART_RUN_ADDRESS}
+    ports:
+      - "8080:8080"
+  accrual:
+    build:
+      context: .
+      dockerfile: DockerfileAccrual
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URI=${ACCRUAL_DATABASE_URI}
+      - RUN_ADDRESS=${ACCRUAL_RUN_ADDRESS}

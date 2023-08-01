@@ -162,6 +162,7 @@ func (h *user) AddOrder(c echo.Context) error {
 				}
 				defer resp.Body.Close()
 
+				// TODO: think what will happen if body was not provided
 				body, err := io.ReadAll(resp.Body)
 				if err != nil {
 					util.GetLogger().Infoln(err)
