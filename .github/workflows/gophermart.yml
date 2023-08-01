@@ -33,10 +33,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get env variables
-        id: dotenv
-        uses: ./.github/actions/dotenv-action
-
       - name: Create databases
         run: |
           apt update
