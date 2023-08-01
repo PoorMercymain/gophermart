@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
 
 	"github.com/PoorMercymain/gophermart/internal/conf"
 	"github.com/PoorMercymain/gophermart/internal/handler"
@@ -67,7 +71,7 @@ func NewPG(DSN string) (*pgxpool.Pool, error) {
 	return pool, err
 }
 
-func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string) *echo.Echo {
+func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string, wg *sync.WaitGroup) *echo.Echo {
 	e := echo.New()
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
@@ -106,7 +110,7 @@ func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string) *echo.Ec
 	uh := handler.NewUser(us)
 
 	util.GetLogger().Infoln("---------------------")
-	err = uh.HandleStartup(accrualAddress)
+	err = uh.HandleStartup(accrualAddress, wg)
 	if err != nil {
 		util.GetLogger().Infoln(err)
 	}
@@ -114,7 +118,7 @@ func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string) *echo.Ec
 
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
-	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.CheckAuth(ur), middleware.AddAccrualAddressToCtx(accrualAddress))
+	e.POST("/api/user/orders", uh.AddOrder(wg), middleware.UseGzipReader(), middleware.CheckAuth(ur), middleware.AddAccrualAddressToCtx(accrualAddress))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader(), middleware.CheckAuth(ur))
@@ -185,5 +189,47 @@ func main() {
 	}
 	defer pool.Close()
 	util.GetLogger().Infoln("дошел до router")
-	router(pool, config.MongoURI, config.AccrualAddress).Start(config.ServerAddress)
+	var wg sync.WaitGroup
+
+	r := router(pool, config.MongoURI, config.AccrualAddress, &wg)
+	go r.Start(config.ServerAddress)
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
+
+	<-sigChan
+	util.GetLogger().Infoln("got signal")
+
+	wg.Wait()
+
+	util.GetLogger().Infoln("дальше wg")
+	start := time.Now()
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
+	defer cancel()
+
+	util.GetLogger().Infoln("дошел до shutdown")
+	if err := r.Shutdown(shutdownCtx); err != nil {
+		util.GetLogger().Infoln("shutdown:", err)
+		return
+	} else {
+		cancel()
+	}
+
+	util.GetLogger().Infoln("прошел shutdown")
+	longShutdown := make(chan struct{}, 1)
+
+	go func() {
+		time.Sleep(3 * time.Second)
+		longShutdown <- struct{}{}
+	}()
+
+	select {
+	case <-shutdownCtx.Done():
+		util.GetLogger().Infoln("shutdownCtx done:", shutdownCtx.Err().Error())
+		util.GetLogger().Infoln(time.Since(start))
+		return
+	case <-longShutdown:
+		util.GetLogger().Infoln("long shutdown finished")
+		return
+	}
 }

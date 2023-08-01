@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
@@ -119,87 +120,99 @@ func (h *user) Authenticate(c echo.Context) error {
 	return nil
 }
 
-func (h *user) AddOrder(c echo.Context) error {
-	if !IsPlaintextContentTypeCorrect(c.Request()) {
-		c.Response().WriteHeader(http.StatusBadRequest)
-		return nil
-	}
+func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if !IsPlaintextContentTypeCorrect(c.Request()) {
+			c.Response().WriteHeader(http.StatusBadRequest)
+			return nil
+		}
 
-	scanner := bufio.NewScanner(c.Request().Body)
-	scanner.Scan()
-	defer c.Request().Body.Close()
+		scanner := bufio.NewScanner(c.Request().Body)
+		scanner.Scan()
+		defer c.Request().Body.Close()
 
-	orderN := scanner.Text()
+		orderN := scanner.Text()
 
-	err := h.srv.AddOrder(c.Request().Context(), orderN)
-	if errors.Is(err, domain.ErrorAlreadyRegistered) {
-		c.Response().WriteHeader(http.StatusOK)
-		return err
-	} else if errors.Is(err, domain.ErrorAlreadyRegisteredByAnotherUser) {
-		c.Response().WriteHeader(http.StatusConflict)
-		return err
-	} else if errors.Is(err, domain.ErrorIncorrectOrderNumber) {
-		c.Response().WriteHeader(http.StatusUnprocessableEntity)
-		return err
-	} else if err != nil {
-		c.Response().WriteHeader(http.StatusInternalServerError)
-		util.GetLogger().Infoln(err)
-		return err
-	}
+		err := h.srv.AddOrder(c.Request().Context(), orderN)
+		if errors.Is(err, domain.ErrorAlreadyRegistered) {
+			c.Response().WriteHeader(http.StatusOK)
+			return err
+		} else if errors.Is(err, domain.ErrorAlreadyRegisteredByAnotherUser) {
+			c.Response().WriteHeader(http.StatusConflict)
+			return err
+		} else if errors.Is(err, domain.ErrorIncorrectOrderNumber) {
+			c.Response().WriteHeader(http.StatusUnprocessableEntity)
+			return err
+		} else if err != nil {
+			c.Response().WriteHeader(http.StatusInternalServerError)
+			util.GetLogger().Infoln(err)
+			return err
+		}
 
-	if c.Request().Context().Value(domain.Key("testing")) != "t" {
-		go func() {
-			accrualWithEndpoint := c.Request().Context().Value(domain.Key("accrual_address")).(string) + "/api/orders/" + orderN
-			login := c.Request().Context().Value(domain.Key("login")).(string)
-			var previousAccrualOrder domain.AccrualOrder
-			var accrualOrder domain.AccrualOrder
+		if c.Request().Context().Value(domain.Key("testing")) != "t" {
+			wg.Add(1)
+			go func() {
+				accrualWithEndpoint := c.Request().Context().Value(domain.Key("accrual_address")).(string) + "/api/orders/" + orderN
+				login := c.Request().Context().Value(domain.Key("login")).(string)
+				var previousAccrualOrder domain.AccrualOrder
+				var accrualOrder domain.AccrualOrder
 				for {
-				util.GetLogger().Infoln("requested", accrualWithEndpoint)
-				resp, err := http.Get(accrualWithEndpoint)
-				if err != nil {
-					util.GetLogger().Infoln(err)
-					return
-				}
-				defer resp.Body.Close()
-
-				// TODO: think what will happen if body was not provided
-				body, err := io.ReadAll(resp.Body)
-				if err != nil {
-					util.GetLogger().Infoln(err)
-					return
-				}
-
-				if body != nil {
-					err = json.Unmarshal(body, &accrualOrder)
+					util.GetLogger().Infoln("requested", accrualWithEndpoint)
+					resp, err := http.Get(accrualWithEndpoint)
 					if err != nil {
 						util.GetLogger().Infoln(err)
+						wg.Done()
 						return
 					}
-					if accrualOrder.Status != previousAccrualOrder.Status {
-						previousAccrualOrder = accrualOrder
-						cont := context.WithValue(context.Background(), domain.Key("login"), login)
-						err = h.srv.UpdateOrder(cont, accrualOrder)
+					defer resp.Body.Close()
+
+					var body []byte
+
+					// TODO: think what will happen if body was not provided
+					if resp.StatusCode != http.StatusNoContent {
+						body, err = io.ReadAll(resp.Body)
 						if err != nil {
 							util.GetLogger().Infoln(err)
-							return
-						}
-						if accrualOrder.Status == "PROCESSED" || accrualOrder.Status == "INVALID" {
-							util.GetLogger().Infoln("got", accrualOrder.Status)
+							wg.Done()
 							return
 						}
 					}
-				} else if resp.StatusCode == http.StatusNoContent {
-					util.GetLogger().Infoln("order was not registred by accrual service")
-					return
+
+					if body != nil {
+						err = json.Unmarshal(body, &accrualOrder)
+						if err != nil {
+							util.GetLogger().Infoln(err)
+							wg.Done()
+							return
+						}
+						if accrualOrder.Status != previousAccrualOrder.Status {
+							previousAccrualOrder = accrualOrder
+							cont := context.WithValue(context.Background(), domain.Key("login"), login)
+							err = h.srv.UpdateOrder(cont, accrualOrder)
+							if err != nil {
+								util.GetLogger().Infoln(err)
+								wg.Done()
+								return
+							}
+							if accrualOrder.Status == "PROCESSED" || accrualOrder.Status == "INVALID" {
+								util.GetLogger().Infoln("got", accrualOrder.Status)
+								wg.Done()
+								return
+							}
+						}
+					} else if resp.StatusCode == http.StatusNoContent {
+						util.GetLogger().Infoln("order was not registred by accrual service")
+						wg.Done()
+						return
+					}
+					time.Sleep(time.Second)
 				}
-				time.Sleep(time.Second)
-			}
-		}()
+			}()
+		}
+
+		c.Response().WriteHeader(http.StatusAccepted)
+		return nil
 	}
-
-
-	c.Response().WriteHeader(http.StatusAccepted)
-	return nil
 }
 
 func (h *user) ReadOrders(c echo.Context) error {
@@ -306,7 +319,7 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 	return nil
 }
 
-func (h *user) HandleStartup(serverAddress string) error {
+func (h *user) HandleStartup(serverAddress string, wg *sync.WaitGroup) error {
 	for batchNumber := 0; ; batchNumber++ {
 		unprocessedOrders, err := h.srv.GetUnprocessedBatch(context.Background(), batchNumber)
 		if err != nil {
@@ -320,6 +333,7 @@ func (h *user) HandleStartup(serverAddress string) error {
 
 		for _, order := range unprocessedOrders {
 			ord := order
+			wg.Add(1)
 			go func() {
 				accrualWithEndpoint := serverAddress + "/api/orders/" + ord.Accrual.Order
 				login := ord.Username
@@ -330,20 +344,26 @@ func (h *user) HandleStartup(serverAddress string) error {
 					resp, err := http.Get(accrualWithEndpoint)
 					if err != nil {
 						util.GetLogger().Infoln(err)
+						wg.Done()
 						return
 					}
 					defer resp.Body.Close()
 
-					body, err := io.ReadAll(resp.Body)
-					if err != nil {
-						util.GetLogger().Infoln(err)
-						return
+					var body []byte
+
+					if resp.StatusCode != http.StatusNoContent {
+						body, err = io.ReadAll(resp.Body)
+						if err != nil {
+							util.GetLogger().Infoln(err)
+							return
+						}
 					}
 
 					if body != nil {
 						err = json.Unmarshal(body, &accrualOrder)
 						if err != nil {
 							util.GetLogger().Infoln(err)
+							wg.Done()
 							return
 						}
 						if accrualOrder.Status != previousAccrualOrder.Status {
@@ -352,15 +372,18 @@ func (h *user) HandleStartup(serverAddress string) error {
 							err = h.srv.UpdateOrder(cont, accrualOrder)
 							if err != nil {
 								util.GetLogger().Infoln(err)
+								wg.Done()
 								return
 							}
 							if accrualOrder.Status == "PROCESSED" || accrualOrder.Status == "INVALID" {
 								util.GetLogger().Infoln("got", accrualOrder.Status)
+								wg.Done()
 								return
 							}
 						}
 					} else if resp.StatusCode == http.StatusNoContent {
 						util.GetLogger().Infoln("order was not registred by accrual service")
+						wg.Done()
 						return
 					}
 					time.Sleep(time.Second)

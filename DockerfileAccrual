@@ -6,4 +6,4 @@ RUN go mod download
 COPY . /accrual
 RUN CGO_ENABLED=0 GOOS=linux go build -o /accrual/cmd/accrual/bin/main /accrual/cmd/accrual/main.go
 # TODO: use healthchecks instead of sleep
-CMD ["bash", "-c", "sleep 10 && /accrual/cmd/accrual/bin/main"]
+CMD ["bash", "-c", "sleep 5 && /accrual/cmd/accrual/bin/main"]

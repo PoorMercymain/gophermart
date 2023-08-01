@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
@@ -35,9 +36,10 @@ func testRouter(t *testing.T) *echo.Echo {
 	us := service.NewUser(mockRepo)
 	uh := NewUser(us)
 
+	var wg sync.WaitGroup
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
-	e.POST("/api/user/orders", uh.AddOrder, middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""),middleware.AddTestingToCtx())
+	e.POST("/api/user/orders", uh.AddOrder(&wg), middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""),middleware.AddTestingToCtx())
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader())
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader())
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader())

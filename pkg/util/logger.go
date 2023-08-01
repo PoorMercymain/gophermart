@@ -10,7 +10,7 @@ var instance *zap.SugaredLogger
 
 func InitLogger() error {
 	cfg := zap.NewProductionConfig()
-	cfg.OutputPaths = []string{"logfile.log"}
+	cfg.OutputPaths = []string{"logfile.log", "stdout"}
 
 	logger, err := cfg.Build()
 	if err != nil {
