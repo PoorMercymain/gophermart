@@ -123,6 +123,21 @@ func (mr *MockUserRepositoryMockRecorder) ReadOrders(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadOrders", reflect.TypeOf((*MockUserRepository)(nil).ReadOrders), arg0)
 }
 
+// ReadWithdrawals mocks base method.
+func (m *MockUserRepository) ReadWithdrawals(arg0 context.Context) ([]domain.WithdrawalOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadWithdrawals", arg0)
+	ret0, _ := ret[0].([]domain.WithdrawalOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadWithdrawals indicates an expected call of ReadWithdrawals.
+func (mr *MockUserRepositoryMockRecorder) ReadWithdrawals(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadWithdrawals", reflect.TypeOf((*MockUserRepository)(nil).ReadWithdrawals), arg0)
+}
+
 // Register mocks base method.
 func (m *MockUserRepository) Register(arg0 context.Context, arg1 domain.User, arg2 chan error) error {
 	m.ctrl.T.Helper()

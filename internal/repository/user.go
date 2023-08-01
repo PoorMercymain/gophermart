@@ -263,3 +263,28 @@ func (r *user) GetUnprocessedBatch(ctx context.Context, batchNumber int) ([]doma
 
 	return unprocessedBatch, nil
 }
+
+func (r *user) ReadWithdrawals(ctx context.Context) ([]domain.WithdrawalOutput, error) {
+	conn, err := r.pgxPool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(ctx, "SELECT order_number, withdrawn, processed_at FROM withdrawals WHERE username = $1 ORDER BY processed_at DESC LIMIT 15 OFFSET $2", ctx.Value(domain.Key("login")), ((ctx.Value(domain.Key("page")).(int))-1)*15)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return nil, err
+	}
+
+	var withdrawal domain.WithdrawalOutput
+	withdrawals := make([]domain.WithdrawalOutput, 0)
+
+	for rows.Next() {
+		rows.Scan(&withdrawal.OrderNumber, &withdrawal.WithdrawnPoints.Withdrawal, &withdrawal.ProcessedAt)
+		withdrawal.ProcessedAtString = withdrawal.ProcessedAt.Format(time.RFC3339)
+		withdrawals = append(withdrawals, withdrawal)
+	}
+
+	return withdrawals, nil
+}

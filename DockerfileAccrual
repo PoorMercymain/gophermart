@@ -1,0 +1,9 @@
+FROM golang:1.20
+WORKDIR /accrual
+COPY go.mod go.sum ./
+RUN ls /accrual
+RUN go mod download
+COPY . /accrual
+RUN CGO_ENABLED=0 GOOS=linux go build -o /accrual/cmd/accrual/bin/main /accrual/cmd/accrual/main.go
+# TODO: use healthchecks instead of sleep
+CMD ["bash", "-c", "sleep 10 && /accrual/cmd/accrual/bin/main"]
