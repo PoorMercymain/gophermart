@@ -33,11 +33,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Get env variables
+        id: dotenv
+        uses: ./.github/actions/dotenv-action
+
       - name: Create databases
         run: |
           apt update
           apt install -y postgresql-client
-          export PGPASSWORD=postgres
           psql -h postgres -U postgres -c "CREATE DATABASE gophermart;"
           psql -h postgres -U postgres -c "CREATE DATABASE accrual;"
 
