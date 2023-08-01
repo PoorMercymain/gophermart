@@ -36,3 +36,4 @@ gophermart-postgres/
 
 # Logs
 *.log
+logfile.log

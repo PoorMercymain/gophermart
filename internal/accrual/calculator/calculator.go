@@ -9,28 +9,68 @@ import (
 	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
+func ProcessUnprocessedOrders(ctx context.Context, storage interfaces.Storage) (err error) {
+	_, cancelCtx := context.WithCancelCause(ctx)
+	defer cancelCtx(err)
+
+	orders, err := storage.GetUnprocessedOrders(ctx)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return
+	}
+
+	for _, order := range orders {
+		util.GetLogger().Infoln("processing unprocessed order ", order.Number)
+		go processOrder(ctx, &order.Number, storage)
+	}
+
+	return
+}
+
+func processOrder(ctx context.Context, orderNumber *string, storage interfaces.Storage) {
+
+	_, cancelCtx := context.WithCancelCause(ctx)
+
+	var err error
+	defer cancelCtx(err)
+
+	orderGoods, err := storage.GetOrderGoods(ctx, orderNumber)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return
+	}
+
+	order := &domain.Order{
+		Number: *orderNumber,
+		Goods:  orderGoods,
+	}
+
+	CalculateAccrual(ctx, order, storage)
+}
+
 func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfaces.Storage) {
 
 	_, cancelCtx := context.WithCancelCause(ctx)
+
+	var err error
+	defer cancelCtx(err)
 
 	var orderRecord = domain.OrderRecord{
 		Number: order.Number,
 		Status: domain.OrderStatusProcessing,
 	}
 
-	util.GetLogger().Infoln(orderRecord)
+	util.GetLogger().Infoln("calculating accrual for order ", orderRecord)
 
-	err := storage.UpdateOrder(ctx, &orderRecord)
+	err = storage.UpdateOrder(ctx, &orderRecord)
 	if err != nil {
 		util.GetLogger().Infoln(err)
-		cancelCtx(err)
 		return
 	}
 
 	goodsRewards, err := storage.GetGoods(ctx)
 	if err != nil {
 		util.GetLogger().Infoln(err)
-		cancelCtx(err)
 		return
 	}
 
@@ -53,9 +93,8 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 	err = storage.UpdateOrder(ctx, &orderRecord)
 	if err != nil {
 		util.GetLogger().Infoln(err)
-		cancelCtx(err)
 		return
 	}
 
-	util.GetLogger().Infoln(orderRecord)
+	util.GetLogger().Infoln("calculated accrual for order ", orderRecord)
 }

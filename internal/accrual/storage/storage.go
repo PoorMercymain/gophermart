@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
 	"sync"
 
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pressly/goose/v3"
@@ -124,7 +126,6 @@ func (dbs *dbStorage) StoreOrder(ctx context.Context, order *domain.OrderRecord)
 	if err != nil {
 		util.GetLogger().Infoln(pgErr)
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
-			tx.Rollback(ctx)
 			util.GetLogger().Infoln(err)
 			return domain.ErrorOrderAlreadyProcessing
 		}
@@ -218,15 +219,126 @@ func (dbs *dbStorage) GetGoods(ctx context.Context) (goods []*domain.Goods, err 
 	return
 }
 
-func (dbs *dbStorage) StoreOrderGoods(ctx context.Context, orderNum *string, goods []*domain.OrderGoods) (err error) {
+func (dbs *dbStorage) StoreOrderGoods(ctx context.Context, order *domain.Order) (err error) {
+
+	conn, err := dbs.pgxPool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	batch := &pgx.Batch{}
+
+	for _, value := range order.Goods {
+		batch.Queue("INSERT INTO order_goods (id, order_number, description, price) VALUES(DEFAULT, $1, $2, $3)",
+			order.Number, value.Description, value.Price)
+	}
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	br := tx.SendBatch(ctx, batch)
+	defer br.Close()
+
+	for _, _ = range order.Goods {
+		_, err = br.Exec()
+		if err != nil {
+			util.GetLogger().Infoln(err)
+			return
+		}
+	}
+
+	err = br.Close()
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return err
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return err
+	}
 
 	return
 }
-func (dbs *dbStorage) GetOrderGoods(ctx context.Context, num *string) (orderGoods []*domain.OrderGoods, err error) {
+func (dbs *dbStorage) GetOrderGoods(ctx context.Context, orderNumber *string) (orderGoods []*domain.OrderGoods, err error) {
+	conn, err := dbs.pgxPool.Acquire(ctx)
+	if err != nil {
+		return
+	}
+	defer conn.Release()
+
+	var totalRows int
+
+	err = conn.QueryRow(ctx, "SELECT count(*) FROM order_goods WHERE order_number = $1", *orderNumber).
+		Scan(&totalRows)
+
+	if totalRows == 0 {
+		util.GetLogger().Infoln("no goods for order", *orderNumber)
+		return
+	}
+
+	rows, err := conn.Query(ctx, "SELECT description, price FROM order_goods WHERE order_number = $1", *orderNumber)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return
+	}
+
+	orderGoods = make([]*domain.OrderGoods, totalRows)
+	counter := 0
+	for rows.Next() {
+		var goodsRecord = &domain.OrderGoods{}
+		err = rows.Scan(&goodsRecord.Description, &goodsRecord.Price)
+		if err != nil {
+			util.GetLogger().Infoln(err)
+			return
+		}
+		orderGoods[counter] = goodsRecord
+		counter++
+	}
 
 	return
 }
 func (dbs *dbStorage) GetUnprocessedOrders(ctx context.Context) (orders []*domain.OrderRecord, err error) {
+	conn, err := dbs.pgxPool.Acquire(ctx)
+	if err != nil {
+		return
+	}
+	defer conn.Release()
+
+	var totalRows int
+
+	err = conn.QueryRow(ctx, "SELECT count(*) FROM orders WHERE status = $1 OR status = $2", domain.OrderStatusProcessing, domain.OrderStatusRegistered).
+		Scan(&totalRows)
+
+	if totalRows == 0 {
+		util.GetLogger().Infoln("no unprocessed orders found")
+		return
+	}
+
+	rows, err := conn.Query(ctx, "SELECT number FROM orders WHERE status = $1 OR status = $2", domain.OrderStatusProcessing, domain.OrderStatusRegistered)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return
+	}
+
+	orders = make([]*domain.OrderRecord, totalRows)
+	counter := 0
+	for rows.Next() {
+		var orderRecord = &domain.OrderRecord{}
+		err = rows.Scan(&orderRecord.Number)
+		if err != nil {
+			util.GetLogger().Infoln(err)
+			return
+		}
+		orders[counter] = orderRecord
+		counter++
+	}
 
 	return
 }

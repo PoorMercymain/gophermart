@@ -13,7 +13,7 @@ type Storage interface {
 	GetOrder(ctx context.Context, num *string) (*domain.OrderRecord, error)
 	GetGoods(ctx context.Context) ([]*domain.Goods, error)
 
-	StoreOrderGoods(ctx context.Context, orderNum *string, goods []*domain.OrderGoods) error
+	StoreOrderGoods(ctx context.Context, order *domain.Order) error
 	GetOrderGoods(ctx context.Context, num *string) ([]*domain.OrderGoods, error)
 	GetUnprocessedOrders(ctx context.Context) ([]*domain.OrderRecord, error)
 

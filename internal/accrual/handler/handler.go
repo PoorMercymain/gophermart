@@ -118,6 +118,12 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 
 	}
 
+	err = h.storage.StoreOrderGoods(c.Request().Context(), &order)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return
+	}
+
 	//enqueue calculation of bonuses in goroutine
 	//TODO: make worker pool
 

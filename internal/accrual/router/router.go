@@ -21,7 +21,6 @@ const RetryAfterInterval = 60
 func Router(dbs interfaces.Storage) *echo.Echo {
 
 	e := echo.New()
-
 	sh := handler.NewStorageHandler(dbs)
 
 	rateLimiterConfig := eMiddleware.RateLimiterConfig{
@@ -43,10 +42,11 @@ func Router(dbs interfaces.Storage) *echo.Echo {
 	}
 
 	e.Use(eMiddleware.RateLimiterWithConfig(rateLimiterConfig))
+	e.Use(middleware.UseGzipReader())
 
-	e.GET("/api/orders/:number", sh.ProcessGetOrdersRequest, middleware.UseGzipReader())
-	e.POST("/api/orders", sh.ProcessPostOrdersRequest, middleware.UseGzipReader())
-	e.POST("/api/goods", sh.ProcessPostGoodsRequest, middleware.UseGzipReader())
+	e.GET("/api/orders/:number", sh.ProcessGetOrdersRequest)
+	e.POST("/api/orders", sh.ProcessPostOrdersRequest)
+	e.POST("/api/goods", sh.ProcessPostGoodsRequest)
 
 	e.GET("/test", func(c echo.Context) error { return c.String(http.StatusOK, "Test Accrual") })
 
