@@ -1,20 +1,50 @@
-# Как запускать
+# Как запускать (docker-compose)
 Запустить Docker, после чего в терминале в корневой директории проекта выполнить команду
 ```
-docker-compose up -d
+docker-compose up
 ```
-После этого в терминале в той же директории
+# Как запускать (не через docker-compose)
+В терминале в корневой директории запустить gophermart
 ```
-go run .\cmd\gophermart\main.go -d="host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable"
+go run .\cmd\gophermart\main.go
 ```
-После этого должен заработать gophermart
+и accrual
+```
+go run .\cmd\accrual\main.go
+```
+Для запуска могут быть использованы флаги и переменные окружения:
 
-# Как запустить тесты
+```
+URI для подключения к postgres:
+флаг -d
+переменная окружения DATABASE_URI
+пример: -d="host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable"
+
+Адрес запуска:
+флаг -a
+переменная окружения RUN_ADDRESS
+пример: -a="localhost:8081"
+```
+У gophermart есть дополнительные флаги и переменные окружения:
+```
+URI mongo (для локального запуска без docker-compose ОБЯЗАТЕЛЬНО нужно указать его, т.к. значение по умолчанию предусматривает либо запуск через docker-compose, либо через actions на github):
+флаг -m
+переменная окружения MONGO_URI
+пример: -m="mongodb://localhost:27017"
+
+Адрес accrual:
+флаг -c
+переменная окружения ACCRUAL_ADDRESS
+пример: -c="http://localhost:8085"
+```
+
+# Как обновить моки слоя для работы с БД gophermart`а
 В корневой директории проекта в терминале прописываем
 ```
 go generate ./...
 ```
-Запускаем тесты также в терминале корневой директории
+# Как запустить тесты
+Запускаем тесты в терминале корневой директории
 ```
 go test ./... -v --count=1
 ```
