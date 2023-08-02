@@ -11,6 +11,7 @@ require (
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.4.2
 	github.com/labstack/echo v3.3.10+incompatible
+	github.com/labstack/echo/v4 v4.11.1
 	github.com/pressly/goose/v3 v3.13.4
 	github.com/stretchr/testify v1.8.1
 	go.mongodb.org/mongo-driver v1.12.0
@@ -27,7 +28,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.0 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/kr/text v0.1.0 // indirect
-	github.com/labstack/echo/v4 v4.11.1 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
