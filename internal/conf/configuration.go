@@ -42,7 +42,6 @@ func GetServerConfig() (outCfg *Config) {
 	return
 }
 
-// host=localhost user=postgres password=postgres sslmode=disable dbname=accrual
 func getServerFlags() (cfg *Config) {
 	cfg = &Config{}
 	cfg.ServerAddress = *flag.String("a", "http://localhost:8080", "server address")
