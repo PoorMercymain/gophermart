@@ -79,8 +79,19 @@ func TestRouter(t *testing.T) {
 
 		{"/api/orders", http.MethodPost, http.StatusBadRequest, "{}"},
 		{"/api/orders", http.MethodPost, http.StatusBadRequest, "{\"order\":\"1234456791\"}"},
+		{"/api/orders", http.MethodPost, http.StatusAccepted, "{\"order\":\"0927\"}"},
+		{"/api/orders", http.MethodPost, http.StatusAccepted, "{\"order\":\"0927\",\"goods\":[]}"},
+		{"/api/orders", http.MethodPost, http.StatusBadRequest, "{\"order\":\"0927\",\"goods\":[\"somefield\":1]}"},
+		{"/api/orders", http.MethodPost, http.StatusBadRequest, "{\"order\":\"0927\",\"goods\":[\"description\":\"machine\"," +
+			"\"price\":100]}"},
+		{"/api/orders", http.MethodPost, http.StatusAccepted, "{\"order\":\"0927\",\"goods\":[{\"description\":\"machine\"," +
+			"\"price\":100}]}"},
 
-		//{"/api/goods", http.MethodPost, http.StatusAccepted, "573956"},
+		{"/api/goods", http.MethodPost, http.StatusBadRequest, "573956"},
+		{"/api/goods", http.MethodPost, http.StatusBadRequest, ""},
+		{"/api/goods", http.MethodPost, http.StatusBadRequest, "{}"},
+		{"/api/goods", http.MethodPost, http.StatusBadRequest, "{\"match\":\"uid\",\"reward\":10,\"reward_type\":\"wrong\"}"},
+		{"/api/goods", http.MethodPost, http.StatusOK, "{\"match\":\"uid\",\"reward\":10,\"reward_type\":\"pt\"}"},
 	}
 
 	for _, testCase := range testTable {

@@ -5,13 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"math"
-	"net/http"
-	"strings"
-
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo/v4"
+	"math"
+	"net/http"
 
 	"github.com/PoorMercymain/gophermart/internal/accrual/calculator"
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
@@ -94,8 +92,6 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 
 	util.GetLogger().Infoln(order)
 
-	util.GetLogger().Infoln(order.Number)
-	util.GetLogger().Infoln(order.Goods)
 	//check order number
 	if order.Number == "" {
 		util.GetLogger().Infoln("empty order number")
@@ -133,8 +129,6 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 	}
 
 	//enqueue calculation of bonuses in goroutine
-	//TODO: make worker pool
-
 	ctx := context.Background()
 	go calculator.CalculateAccrual(ctx, &order, h.storage)
 
@@ -161,6 +155,13 @@ func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
 
 	err = json.Unmarshal(buf.Bytes(), &goods)
 	if err != nil {
+		util.GetLogger().Infoln(err)
+		err = domain.ErrorRequestFormatIncorrect
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if goods.Match == "" {
 		util.GetLogger().Infoln(err)
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
@@ -195,23 +196,6 @@ func IsJSONContentTypeCorrect(r *http.Request) bool {
 
 	for contentTypeCurrentIndex, contentType := range r.Header.Values("Content-Type") {
 		if contentType == "application/json" {
-			break
-		}
-		if contentTypeCurrentIndex == len(r.Header.Values("Content-Type"))-1 {
-			return false
-		}
-	}
-
-	return true
-}
-
-func IsPlaintextContentTypeCorrect(r *http.Request) bool {
-	if len(r.Header.Values("Content-Type")) == 0 {
-		return false
-	}
-
-	for contentTypeCurrentIndex, contentType := range r.Header.Values("Content-Type") {
-		if strings.HasPrefix(contentType, "text/plain") {
 			break
 		}
 		if contentTypeCurrentIndex == len(r.Header.Values("Content-Type"))-1 {

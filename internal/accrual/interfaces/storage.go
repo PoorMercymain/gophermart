@@ -6,6 +6,7 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
 )
 
+//go:generate mockgen -destination=mocks/storage_mock.gen.go -package=mocks . Storage
 type Storage interface {
 	StoreGoodsReward(ctx context.Context, goods *domain.Goods) error
 	StoreOrder(ctx context.Context, order *domain.OrderRecord) error

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -18,6 +17,7 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/repository"
 	"github.com/PoorMercymain/gophermart/internal/service"
 	"github.com/PoorMercymain/gophermart/pkg/util"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo"
@@ -132,53 +132,7 @@ func main() {
 
 	util.GetLogger().Infoln("логгер запустился")
 
-	dsn := flag.String("d", "", "postgres DSN")
-	address := flag.String("a", "", "server address")
-	mongo := flag.String("m", "", "Mongo URI")
-	accrualAddress := flag.String("c", "", "accrual server address")
-
-	flag.Parse()
-
-	// TODO: this needs refactoring
-	var dsnSet, addressSet, mongoSet, accrualAddressSet bool
-
-	if *dsn == "" {
-		*dsn, dsnSet = os.LookupEnv("DATABASE_URI")
-	}
-
-	if *address == "" {
-		*address, addressSet = os.LookupEnv("RUN_ADDRESS")
-	}
-
-	if *mongo == "" {
-		*mongo, mongoSet = os.LookupEnv("MONGO_URI")
-	}
-
-	if *accrualAddress == "" {
-		*accrualAddress, accrualAddressSet = os.LookupEnv("ACCRUAL_ADDRESS")
-	}
-
-	if *dsn == "" && !dsnSet {
-		*dsn = "host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable"
-		util.GetLogger().Infoln("default value for dsn used")
-	}
-
-	if *address == "" && !addressSet {
-		*address = "localhost:8080"
-		util.GetLogger().Infoln("default value for server address used")
-	}
-
-	if *mongo == "" && !mongoSet {
-		*mongo = "mongodb://mongodb:27017"
-		util.GetLogger().Infoln("default value for Mongo URI used, if mongo runs locally, use localhost instead of last mongodb word (example: mongodb://localhost:27017)")
-	}
-
-	if *accrualAddress == "" && !accrualAddressSet {
-		*accrualAddress = "http://localhost:8085"
-		util.GetLogger().Infoln("default value for accrual service address used")
-	}
-
-	config := conf.Config{DatabaseURI: *dsn, ServerAddress: *address, MongoURI: *mongo, AccrualAddress: *accrualAddress}
+	config := conf.GetServerConfig()
 
 	util.GetLogger().Infoln(config)
 
@@ -204,7 +158,10 @@ func main() {
 
 	util.GetLogger().Infoln("дальше wg")
 	start := time.Now()
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
+
+	timeoutInterval := 5 * time.Second
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), timeoutInterval)
 	defer cancel()
 
 	util.GetLogger().Infoln("дошел до shutdown")
