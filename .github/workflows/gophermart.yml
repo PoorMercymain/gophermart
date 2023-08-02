@@ -35,7 +35,7 @@ jobs:
 
       - name: Get env variables
         id: dotenv
-        uses: actions/dotenv-action
+        uses: ./.github/actions/dotenv-action
 
       - name: Create databases
         run: |
