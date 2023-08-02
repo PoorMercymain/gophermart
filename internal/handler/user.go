@@ -149,6 +149,7 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 			return err
 		}
 
+		// simple solution (for tests to ignore that code), but mock of accrual would be better
 		if c.Request().Context().Value(domain.Key("testing")) != "t" {
 			wg.Add(1)
 			go func() {
@@ -168,7 +169,6 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 
 					var body []byte
 
-					// TODO: think what will happen if body was not provided
 					if resp.StatusCode != http.StatusNoContent {
 						body, err = io.ReadAll(resp.Body)
 						if err != nil {

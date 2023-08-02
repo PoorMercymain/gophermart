@@ -37,3 +37,7 @@ gophermart-postgres/
 # Logs
 *.log
 logfile.log
+**/logfile.log
+
+# env file
+.env
