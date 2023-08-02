@@ -1,0 +1,7 @@
+FROM golang:1.20
+WORKDIR /gophermart
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . /gophermart
+RUN CGO_ENABLED=0 GOOS=linux go build -o /gophermart/cmd/gophermart/bin/main /gophermart/cmd/gophermart/main.go
+CMD ["bash", "-c", "/gophermart/cmd/gophermart/bin/main && ls / && ls /gophermart/cmd/gophermart/bin/"]
