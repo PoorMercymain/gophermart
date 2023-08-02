@@ -94,7 +94,15 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 
 	util.GetLogger().Infoln(order)
 
+	util.GetLogger().Infoln(order.Number)
+	util.GetLogger().Infoln(order.Goods)
 	//check order number
+	if order.Number == "" {
+		util.GetLogger().Infoln("empty order number")
+		err = domain.ErrorRequestFormatIncorrect
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return
+	}
 	err = goluhn.Validate(order.Number)
 	if err != nil {
 		util.GetLogger().Infoln(err)
