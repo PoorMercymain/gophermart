@@ -1,3 +1,9 @@
+[![gophermart](https://github.com/PoorMercymain/gophermart/actions/workflows/gophermart.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/gophermart.yml)
+
+[![go vet test](https://github.com/PoorMercymain/gophermart/actions/workflows/statictest.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/statictest.yml)
+
+[![CI](https://github.com/PoorMercymain/gophermart/actions/workflows/blank.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/blank.yml)
+
 # Как запускать (docker-compose)
 Запустить Docker, после чего в терминале в корневой директории проекта выполнить команду
 ```
