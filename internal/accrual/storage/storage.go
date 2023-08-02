@@ -244,7 +244,7 @@ func (dbs *dbStorage) StoreOrderGoods(ctx context.Context, order *domain.Order) 
 	br := tx.SendBatch(ctx, batch)
 	defer br.Close()
 
-	for _, _ = range order.Goods {
+	for _ = range order.Goods {
 		_, err = br.Exec()
 		if err != nil {
 			util.GetLogger().Infoln(err)

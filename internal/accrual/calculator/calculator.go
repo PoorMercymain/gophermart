@@ -29,10 +29,7 @@ func ProcessUnprocessedOrders(ctx context.Context, storage interfaces.Storage) (
 
 func processOrder(ctx context.Context, orderNumber *string, storage interfaces.Storage) {
 
-	_, cancelCtx := context.WithCancelCause(ctx)
-
 	var err error
-	defer cancelCtx(err)
 
 	orderGoods, err := storage.GetOrderGoods(ctx, orderNumber)
 	if err != nil {
@@ -50,10 +47,7 @@ func processOrder(ctx context.Context, orderNumber *string, storage interfaces.S
 
 func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfaces.Storage) {
 
-	_, cancelCtx := context.WithCancelCause(ctx)
-
 	var err error
-	defer cancelCtx(err)
 
 	var orderRecord = domain.OrderRecord{
 		Number: order.Number,
