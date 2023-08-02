@@ -10,8 +10,6 @@ import (
 )
 
 func ProcessUnprocessedOrders(ctx context.Context, storage interfaces.Storage) (err error) {
-	_, cancelCtx := context.WithCancelCause(ctx)
-	defer cancelCtx(err)
 
 	orders, err := storage.GetUnprocessedOrders(ctx)
 	if err != nil {
