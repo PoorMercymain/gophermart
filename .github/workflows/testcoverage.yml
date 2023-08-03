@@ -21,6 +21,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+      - name: Setup
+        run: |
+          chmod -R +x ./.github/actions/test-coverage-badge/coverage.sh
+
       - name: Update coverage report
         uses: ./.github/actions/test-coverage-badge
         with:
