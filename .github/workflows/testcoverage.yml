@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Update coverage report
-        uses: .github/actions/test-coverage-badge
+        uses: ./.github/actions/test-coverage-badge
         with:
           report: 'false'
           chart: 'false'
