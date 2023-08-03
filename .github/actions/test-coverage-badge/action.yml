@@ -41,6 +41,7 @@ runs:
         INPUT_CHART:  ${{inputs.chart}}
         INPUT_REPORT: ${{inputs.report}}
       run: |
+        chmod -R +x ${{github.action_path}}/coverage.sh
         ${{github.action_path}}/coverage.sh ./.github/wiki/
 
     - name: Push to wiki
