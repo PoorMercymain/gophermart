@@ -80,9 +80,6 @@ jobs:
             -accrual-port="$ACCRUAL_PORT" \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/accrual?sslmode=disable"
 
-      - name: Generate test coverage badge
-        uses: ./.github/actions/test-coverage-badge
-
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
