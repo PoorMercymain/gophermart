@@ -82,6 +82,10 @@ jobs:
           
       - name: Go coverage report
         uses: ncruces/go-coverage-report@v0.1.9
+        with:
+          report: 'true'
+          chart: 'true'
+          amend: 'false'
         continue-on-error: true
 
       - name: Archive logs
