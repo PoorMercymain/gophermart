@@ -23,8 +23,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Test
-        run: go test -v ./...
-
       - name: Update coverage report
         uses: ncruces/go-coverage-report@v0
+        with:
+          report: 'false'
+          chart: 'false'
+          amend: 'true'
