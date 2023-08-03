@@ -27,9 +27,8 @@ func ProcessUnprocessedOrders(ctx context.Context, storage interfaces.Storage, w
 	return
 }
 
-func processOrder(ctx context.Context, orderNumber *string, storage interfaces.Storage, wg *sync.WaitGroup) {
+func processOrder(ctx context.Context, orderNumber *string, storage interfaces.Storage, wg *sync.WaitGroup) (err error) {
 
-	var err error
 	defer wg.Done()
 	orderGoods, err := storage.GetOrderGoods(ctx, orderNumber)
 	if err != nil {
@@ -42,12 +41,17 @@ func processOrder(ctx context.Context, orderNumber *string, storage interfaces.S
 		Goods:  orderGoods,
 	}
 	wg.Add(1)
-	CalculateAccrual(ctx, order, storage, wg)
+	err = CalculateAccrual(ctx, order, storage, wg)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		return
+	}
+
+	return
 }
 
-func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfaces.Storage, wg *sync.WaitGroup) {
+func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfaces.Storage, wg *sync.WaitGroup) (err error) {
 
-	var err error
 	defer wg.Done()
 
 	var orderRecord = domain.OrderRecord{
