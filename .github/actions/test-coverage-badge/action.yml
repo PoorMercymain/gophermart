@@ -41,7 +41,7 @@ runs:
         INPUT_CHART:  ${{inputs.chart}}
         INPUT_REPORT: ${{inputs.report}}
       run: |
-        coverage.sh ./.github/wiki/
+        ./coverage.sh ./.github/wiki/
 
     - name: Push to wiki
       shell: bash
