@@ -30,7 +30,7 @@ OUT_DIR="${1-$SCRIPT_DIR}"
 OUT_FILE="$(mktemp)"
 
 # Get coverage for all packages in the current directory; store next to script.
-go test ./... -v -coverpkg "$(go list)/..." -coverprofile "$OUT_FILE"
+go test ./... -v -coverpkg=./... -coverprofile "$OUT_FILE"
 
 if [[ "${INPUT_REPORT-true}" == "true" ]]; then
 	# Create an HTML report; store next to script.
