@@ -89,6 +89,9 @@ jobs:
           profile: cover.out
           local-prefix: github.com/PoorMercymain/gophermart
 
+      - name: Update coverage report
+        uses: ncruces/go-coverage-report@v0
+
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
