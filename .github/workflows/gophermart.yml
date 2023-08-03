@@ -83,8 +83,8 @@ jobs:
       - name: Go coverage report
         uses: ncruces/go-coverage-report@v0.1.9
         with:
-          report: 'true'
-          chart: 'true'
+          report: 'false'
+          chart: 'false'
           amend: 'false'
         continue-on-error: true
 
