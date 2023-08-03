@@ -60,7 +60,7 @@ jobs:
           (cd cmd/gophermart && go build -buildvcs=false -o gophermart)
           (cd cmd/accrual && go build -buildvcs=false -o accrual)
 
-      - name: Test
+      - name: Gophermart Test
         run: |
           export ACCRUAL_PORT=$(random unused-port)
           while [ "$ACCRUAL_PORT" -eq 8080 ]; do
@@ -79,7 +79,10 @@ jobs:
             -accrual-host=localhost \
             -accrual-port="$ACCRUAL_PORT" \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/accrual?sslmode=disable"
-          
+
+      - name: Test
+        run: go test -v ./...
+
       - name: Go coverage report
         uses: ncruces/go-coverage-report@v0.1.9
         with:
