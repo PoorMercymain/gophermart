@@ -1,5 +1,5 @@
 [![gophermart](https://github.com/PoorMercymain/gophermart/actions/workflows/gophermart.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/gophermart.yml) [![go vet test](https://github.com/PoorMercymain/gophermart/actions/workflows/statictest.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/statictest.yml) [![CI](https://github.com/PoorMercymain/gophermart/actions/workflows/blank.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/blank.yml)
-[![Go Coverage](https://github.com/PoorMercyman/gophermart/wiki/coverage.svg)](https://raw.githack.com/wiki/PoorMercyman/gophermart/coverage.html)
+[![Go Coverage](https://github.com/PoorMercyman/gophermart/wiki/coverage.svg)]
 # Как запускать (docker-compose)
 Запустить Docker, написать env файл (образец, который также можно использовать, переименовав его в .env - .env.example), после чего в терминале в корневой директории проекта выполнить команду
 # Как запускать (не через docker-compose)
