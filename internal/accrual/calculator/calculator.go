@@ -3,13 +3,14 @@ package calculator
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
 	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces"
 	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
-func ProcessUnprocessedOrders(ctx context.Context, storage interfaces.Storage) (err error) {
+func ProcessUnprocessedOrders(ctx context.Context, storage interfaces.Storage, wg *sync.WaitGroup) (err error) {
 
 	orders, err := storage.GetUnprocessedOrders(ctx)
 	if err != nil {
@@ -19,16 +20,17 @@ func ProcessUnprocessedOrders(ctx context.Context, storage interfaces.Storage) (
 
 	for _, order := range orders {
 		util.GetLogger().Infoln("processing unprocessed order ", order.Number)
-		go processOrder(ctx, &order.Number, storage)
+		wg.Add(1)
+		go processOrder(ctx, &order.Number, storage, wg)
 	}
 
 	return
 }
 
-func processOrder(ctx context.Context, orderNumber *string, storage interfaces.Storage) {
+func processOrder(ctx context.Context, orderNumber *string, storage interfaces.Storage, wg *sync.WaitGroup) {
 
 	var err error
-
+	defer wg.Done()
 	orderGoods, err := storage.GetOrderGoods(ctx, orderNumber)
 	if err != nil {
 		util.GetLogger().Infoln(err)
@@ -39,13 +41,14 @@ func processOrder(ctx context.Context, orderNumber *string, storage interfaces.S
 		Number: *orderNumber,
 		Goods:  orderGoods,
 	}
-
-	CalculateAccrual(ctx, order, storage)
+	wg.Add(1)
+	CalculateAccrual(ctx, order, storage, wg)
 }
 
-func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfaces.Storage) {
+func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfaces.Storage, wg *sync.WaitGroup) {
 
 	var err error
+	defer wg.Done()
 
 	var orderRecord = domain.OrderRecord{
 		Number: order.Number,
@@ -89,4 +92,5 @@ func CalculateAccrual(ctx context.Context, order *domain.Order, storage interfac
 	}
 
 	util.GetLogger().Infoln("calculated accrual for order ", orderRecord)
+	return
 }

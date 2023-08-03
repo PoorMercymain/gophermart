@@ -4,6 +4,7 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
 	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces/mocks"
 	"github.com/PoorMercymain/gophermart/internal/accrual/middleware"
+	"sync"
 
 	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/golang/mock/gomock"
@@ -35,7 +36,8 @@ func testRouter(t *testing.T) *echo.Echo {
 	mockRepo.EXPECT().GetOrderGoods(gomock.Any(), gomock.Any()).Return(nil, nil).AnyTimes()
 	mockRepo.EXPECT().GetUnprocessedOrders(gomock.Any()).Return(nil, nil).AnyTimes()
 
-	sh := NewStorageHandler(mockRepo)
+	wg := &sync.WaitGroup{}
+	sh := NewStorageHandler(mockRepo, wg)
 
 	e.Use(middleware.UseGzipReader())
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -18,10 +19,10 @@ const RequestsPerSecond = 0.5
 const RequestsAtSameTime = 10
 const RetryAfterInterval = 60
 
-func Router(dbs interfaces.Storage) *echo.Echo {
+func Router(dbs interfaces.Storage, wg *sync.WaitGroup) *echo.Echo {
 
 	e := echo.New()
-	sh := handler.NewStorageHandler(dbs)
+	sh := handler.NewStorageHandler(dbs, wg)
 
 	rateLimiterConfig := eMiddleware.RateLimiterConfig{
 		Skipper: eMiddleware.DefaultSkipper,

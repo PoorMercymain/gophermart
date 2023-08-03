@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"math"
 	"net/http"
+	"sync"
 
 	"github.com/PoorMercymain/gophermart/internal/accrual/calculator"
 	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
@@ -19,11 +20,13 @@ import (
 
 type StorageHandler struct {
 	storage interfaces.Storage
+	wg      *sync.WaitGroup
 }
 
-func NewStorageHandler(storage interfaces.Storage) *StorageHandler {
+func NewStorageHandler(storage interfaces.Storage, wg *sync.WaitGroup) *StorageHandler {
 	return &StorageHandler{
 		storage: storage,
+		wg:      wg,
 	}
 }
 
@@ -66,6 +69,10 @@ func (h *StorageHandler) ProcessGetOrdersRequest(c echo.Context) (err error) {
 }
 
 func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
+
+	h.wg.Add(1)
+	defer h.wg.Done()
+
 	if !IsJSONContentTypeCorrect(c.Request()) {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return
@@ -130,13 +137,17 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 
 	//enqueue calculation of bonuses in goroutine
 	ctx := context.Background()
-	go calculator.CalculateAccrual(ctx, &order, h.storage)
+	h.wg.Add(1)
+	go calculator.CalculateAccrual(ctx, &order, h.storage, h.wg)
 
 	c.Response().WriteHeader(http.StatusAccepted)
 	return
 }
 
 func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
+	h.wg.Add(1)
+	defer h.wg.Done()
+
 	if !IsJSONContentTypeCorrect(c.Request()) {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return
