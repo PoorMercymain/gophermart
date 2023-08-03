@@ -2,18 +2,20 @@ package main
 
 import (
 	"context"
-	"github.com/PoorMercymain/gophermart/internal/accrual/calculator"
-	"github.com/PoorMercymain/gophermart/internal/accrual/config"
-	routerAccrual "github.com/PoorMercymain/gophermart/internal/accrual/router"
-	"github.com/PoorMercymain/gophermart/internal/accrual/storage"
-	"github.com/PoorMercymain/gophermart/pkg/util"
-	"github.com/asaskevich/govalidator"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/asaskevich/govalidator"
+	_ "github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/PoorMercymain/gophermart/internal/accrual/calculator"
+	"github.com/PoorMercymain/gophermart/internal/accrual/config"
+	routerAccrual "github.com/PoorMercymain/gophermart/internal/accrual/router"
+	"github.com/PoorMercymain/gophermart/internal/accrual/storage"
+	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
 func main() {

@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 
-	"github.com/PoorMercymain/gophermart/internal/domain"
-	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/PoorMercymain/gophermart/internal/domain"
+	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
 type user struct {

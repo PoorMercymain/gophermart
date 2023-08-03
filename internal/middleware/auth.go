@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/PoorMercymain/gophermart/internal/domain"
-	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo"
+
+	"github.com/PoorMercymain/gophermart/internal/domain"
+	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
 func CheckAuth(ur domain.UserRepository) echo.MiddlewareFunc {

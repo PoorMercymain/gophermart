@@ -1,19 +1,20 @@
 package handler
 
 import (
-	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
-	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces/mocks"
-	"github.com/PoorMercymain/gophermart/internal/accrual/middleware"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"sync"
+	"testing"
 
 	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"net/http/httptest"
-	"strings"
-	"testing"
+
+	"github.com/PoorMercymain/gophermart/internal/accrual/domain"
+	"github.com/PoorMercymain/gophermart/internal/accrual/interfaces/mocks"
+	"github.com/PoorMercymain/gophermart/internal/accrual/middleware"
 )
 
 func testRouter(t *testing.T) *echo.Echo {

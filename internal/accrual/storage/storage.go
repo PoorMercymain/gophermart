@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-
 	"sync"
 
 	"github.com/jackc/pgerrcode"

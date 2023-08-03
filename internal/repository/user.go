@@ -6,13 +6,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/PoorMercymain/gophermart/internal/domain"
-	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/PoorMercymain/gophermart/internal/domain"
+	"github.com/PoorMercymain/gophermart/pkg/util"
 )
 
 type user struct {
@@ -242,7 +243,7 @@ func (r *user) GetUnprocessedBatch(ctx context.Context, batchNumber int) ([]doma
 	}
 	defer conn.Release()
 
-	rows, err := conn.Query(ctx, "SELECT num, stat, accrual, username FROM orders WHERE stat != 'PROCESSED' AND stat != 'INVALID' LIMIT 10 OFFSET $1", batchNumber * 10)
+	rows, err := conn.Query(ctx, "SELECT num, stat, accrual, username FROM orders WHERE stat != 'PROCESSED' AND stat != 'INVALID' LIMIT 10 OFFSET $1", batchNumber*10)
 	if err != nil {
 		return make([]domain.AccrualOrderWithUsername, 0), err
 	}

@@ -3,8 +3,9 @@ package middleware
 import (
 	"context"
 
-	"github.com/PoorMercymain/gophermart/internal/domain"
 	"github.com/labstack/echo"
+
+	"github.com/PoorMercymain/gophermart/internal/domain"
 )
 
 func AddTestingToCtx() echo.MiddlewareFunc {
