@@ -16,6 +16,11 @@ import (
 func CheckAuth(ur domain.UserRepository) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			if _, ok := c.Request().Header["Authorization"]; ok {
+				c.Response().WriteHeader(http.StatusUnauthorized) // authorization with header is forbidden
+				return nil
+			}
+
 			cookie, err := c.Request().Cookie("jwt")
 			if err != nil && !errors.Is(err, http.ErrNoCookie) {
 				c.Response().WriteHeader(http.StatusBadRequest)

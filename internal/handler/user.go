@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
 	"github.com/PoorMercymain/gophermart/pkg/util"
@@ -36,12 +37,30 @@ func (h *user) Register(c echo.Context) error {
 
 	var user domain.User
 
-	if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
+	defer c.Request().Body.Close()
+
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	util.GetLogger().Infoln(string(b))
+
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
+	if hasDuplicate(string(b)) {
+		util.GetLogger().Infoln("duplicate found")
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
+	}
+
+	d := json.NewDecoder(c.Request().Body)
+	d.DisallowUnknownFields()
+
+	if err := d.Decode(&user); err != nil {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		util.GetLogger().Infoln(err)
 		return err
 	}
-	defer c.Request().Body.Close()
 
 	if user.Login == "" || user.Password == "" {
 		c.Response().WriteHeader(http.StatusBadRequest)
@@ -53,7 +72,7 @@ func (h *user) Register(c echo.Context) error {
 
 	uniqueLoginErrorChan := make(chan error, 1)
 
-	err := h.srv.Register(c.Request().Context(), &user, uniqueLoginErrorChan)
+	err = h.srv.Register(c.Request().Context(), &user, uniqueLoginErrorChan)
 	if err != nil {
 		select {
 		case <-uniqueLoginErrorChan:
@@ -88,12 +107,30 @@ func (h *user) Authenticate(c echo.Context) error {
 
 	var user domain.User
 
-	if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
+	defer c.Request().Body.Close()
+
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
+
+	if hasDuplicate(string(b)) {
+		util.GetLogger().Infoln("duplicate found")
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
+	}
+
+	d := json.NewDecoder(c.Request().Body)
+	d.DisallowUnknownFields()
+
+	if err := d.Decode(&user); err != nil {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		util.GetLogger().Infoln(err)
 		return err
 	}
-	defer c.Request().Body.Close()
 
 	if user.Login == "" || user.Password == "" {
 		c.Response().WriteHeader(http.StatusBadRequest)
@@ -293,16 +330,34 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 		return nil
 	}
 
+	defer c.Request().Body.Close()
+
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
+
+	if hasDuplicate(string(b)) {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		util.GetLogger().Infoln("duplicate found")
+		return nil
+	}
+
 	var withdrawal domain.Withdrawal
 
-	if err := json.NewDecoder(c.Request().Body).Decode(&withdrawal); err != nil {
+	d := json.NewDecoder(c.Request().Body)
+	d.DisallowUnknownFields()
+
+	if err := d.Decode(&withdrawal); err != nil {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		util.GetLogger().Infoln(err)
 		return err
 	}
-	defer c.Request().Body.Close()
 
-	err := h.srv.AddWithdrawal(c.Request().Context(), withdrawal)
+	err = h.srv.AddWithdrawal(c.Request().Context(), withdrawal)
 	if err != nil {
 		if errors.Is(err, domain.ErrorNotEnoughPoints) {
 			c.Response().WriteHeader(http.StatusPaymentRequired)
@@ -501,4 +556,36 @@ func CreateJWTString(stringToIncludeInJWT string) (string, error) {
 		return "", err
 	}
 	return tokenString, err
+}
+
+func hasDuplicate(stringToCheck string) bool {
+	stringToCheck = strings.Replace(stringToCheck, "\n", "", -1)
+	stringToCheck = strings.Replace(stringToCheck, "\r", "", -1)
+	stringToCheck = strings.TrimPrefix(stringToCheck, "{")
+	stringToCheck = strings.TrimSuffix(stringToCheck, "}")
+	stringToCheck = removeAllWhitespace(stringToCheck)
+	stringToCheck = strings.Replace(stringToCheck, ",", ":", -1)
+
+	jsonStrs := strings.Split(stringToCheck, ":")
+
+	keysMap := make(map[string]bool)
+	for i, str := range jsonStrs {
+		if i % 2 == 0 {
+			util.GetLogger().Infoln(str)
+			if keysMap[str] {
+				return true
+			}
+			keysMap[str] = true
+		}
+	}
+	return false
+}
+
+func removeAllWhitespace(str string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsSpace(r) {
+			return -1 // it deletes whitespace symbols (may be even \n and \r)
+		}
+		return r
+	}, str)
 }

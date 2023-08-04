@@ -30,6 +30,9 @@ gophermart-mongo/
 # Postgres data
 gophermart-postgres/
 
+# Pgadmin data
+pgadmin-data/
+
 # Mocks
 # temporary commented
 # internal/domain/mocks/
