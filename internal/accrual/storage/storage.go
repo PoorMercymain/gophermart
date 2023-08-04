@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
@@ -37,7 +38,21 @@ func NewDBStorage(DSN string) (storage interfaces.Storage, err error) {
 	err = pg.PingContext(context.Background())
 	if err != nil {
 		util.GetLogger().Infoln(err)
-		return
+
+		for _, retryInterval := range domain.RepeatedAttemptsIntervals {
+			time.Sleep(*retryInterval)
+			err = pg.PingContext(context.Background())
+			if err != nil {
+				util.GetLogger().Infoln(err)
+			} else {
+				util.GetLogger().Infoln("ping succesful")
+				break
+			}
+
+		}
+		if err != nil {
+			return
+		}
 	}
 
 	err = goose.Run("up", pg, "./pkg/migrations_accrual")
