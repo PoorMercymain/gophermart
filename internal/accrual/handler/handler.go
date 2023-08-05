@@ -107,7 +107,7 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 	d := json.NewDecoder(c.Request().Body)
 	d.DisallowUnknownFields()
 
-	if err := d.Decode(&order); err != nil {
+	if err = d.Decode(&order); err != nil {
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
 		util.GetLogger().Infoln(err)
@@ -197,7 +197,7 @@ func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
 	d := json.NewDecoder(c.Request().Body)
 	d.DisallowUnknownFields()
 
-	if err := d.Decode(&goods); err != nil {
+	if err = d.Decode(&goods); err != nil {
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
 		util.GetLogger().Infoln(err)
