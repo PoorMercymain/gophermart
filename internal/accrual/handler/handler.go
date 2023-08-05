@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"math"
 	"net/http"
 	"sync"
@@ -101,11 +102,15 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 		return
 	}
 
-	err = json.Unmarshal(buf.Bytes(), &order)
-	if err != nil {
-		util.GetLogger().Infoln(err)
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(buf.Bytes()))
+
+	d := json.NewDecoder(c.Request().Body)
+	d.DisallowUnknownFields()
+
+	if err := d.Decode(&order); err != nil {
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
+		util.GetLogger().Infoln(err)
 		return
 	}
 
@@ -187,11 +192,15 @@ func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
 		return
 	}
 
-	err = json.Unmarshal(buf.Bytes(), &goods)
-	if err != nil {
-		util.GetLogger().Infoln(err)
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(buf.Bytes()))
+
+	d := json.NewDecoder(c.Request().Body)
+	d.DisallowUnknownFields()
+
+	if err := d.Decode(&goods); err != nil {
 		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
+		util.GetLogger().Infoln(err)
 		return
 	}
 
