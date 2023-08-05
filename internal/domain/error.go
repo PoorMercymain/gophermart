@@ -7,4 +7,5 @@ var (
 	ErrorAlreadyRegisteredByAnotherUser = errors.New("already registered by another user")
 	ErrorNotEnoughPoints                = errors.New("not enough points to withdraw")
 	ErrorIncorrectOrderNumber           = errors.New("incorrect order number")
+	ErrorRequestFormatIncorrect         = errors.New("incorrect request format")
 )

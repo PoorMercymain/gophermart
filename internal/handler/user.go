@@ -46,12 +46,18 @@ func (h *user) Register(c echo.Context) error {
 	}
 	util.GetLogger().Infoln(string(b))
 
-	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
-	if hasDuplicate(string(b)) {
-		util.GetLogger().Infoln("duplicate found")
+	bufCopy := append([]byte(nil), b...)
+	reader := bytes.NewReader(bufCopy)
+
+	err = util.CheckDuplicatesInJSON(json.NewDecoder(reader), nil)
+	if err != nil {
+		util.GetLogger().Infoln("json with duplicate properties")
+		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
-		return nil
+		return err
 	}
+
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
 
 	d := json.NewDecoder(c.Request().Body)
 	d.DisallowUnknownFields()
@@ -115,13 +121,18 @@ func (h *user) Authenticate(c echo.Context) error {
 		return err
 	}
 
-	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
+	bufCopy := append([]byte(nil), b...)
+	reader := bytes.NewReader(bufCopy)
 
-	if hasDuplicate(string(b)) {
-		util.GetLogger().Infoln("duplicate found")
+	err = util.CheckDuplicatesInJSON(json.NewDecoder(reader), nil)
+	if err != nil {
+		util.GetLogger().Infoln("json with duplicate properties")
+		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
-		return nil
+		return err
 	}
+
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
 
 	d := json.NewDecoder(c.Request().Body)
 	d.DisallowUnknownFields()
@@ -338,13 +349,18 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 		return err
 	}
 
-	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
+	bufCopy := append([]byte(nil), b...)
+	reader := bytes.NewReader(bufCopy)
 
-	if hasDuplicate(string(b)) {
+	err = util.CheckDuplicatesInJSON(json.NewDecoder(reader), nil)
+	if err != nil {
+		util.GetLogger().Infoln("json with duplicate properties")
+		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
-		util.GetLogger().Infoln("duplicate found")
-		return nil
+		return err
 	}
+
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
 
 	var withdrawal domain.Withdrawal
 
@@ -394,7 +410,7 @@ func (h *user) HandleStartup(serverAddress string, wg *sync.WaitGroup) error {
 				login := ord.Username
 				var previousAccrualOrder domain.AccrualOrder
 				var accrualOrder domain.AccrualOrder
-					for {
+				for {
 					util.GetLogger().Infoln("requested", accrualWithEndpoint)
 					resp, err := http.Get(accrualWithEndpoint)
 					if err != nil {
@@ -570,7 +586,7 @@ func hasDuplicate(stringToCheck string) bool {
 
 	keysMap := make(map[string]bool)
 	for i, str := range jsonStrs {
-		if i % 2 == 0 {
+		if i%2 == 0 {
 			util.GetLogger().Infoln(str)
 			if keysMap[str] {
 				return true
