@@ -90,7 +90,7 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 		return
 	}
 
-	bufCopy := bytes.Clone(buf.Bytes())
+	bufCopy := append([]byte(nil), buf.Bytes()...)
 	reader := bytes.NewReader(bufCopy)
 
 	err = util.CheckDuplicatesInJSON(json.NewDecoder(reader), nil)
@@ -176,7 +176,7 @@ func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
 		return
 	}
 
-	bufCopy := bytes.Clone(buf.Bytes())
+	bufCopy := append([]byte(nil), buf.Bytes()...)
 	reader := bytes.NewReader(bufCopy)
 
 	err = util.CheckDuplicatesInJSON(json.NewDecoder(reader), nil)
