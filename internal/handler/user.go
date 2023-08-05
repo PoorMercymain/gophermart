@@ -13,10 +13,10 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"unicode"
 
 	"github.com/PoorMercymain/gophermart/internal/domain"
 	"github.com/PoorMercymain/gophermart/pkg/util"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo"
 )
@@ -572,36 +572,4 @@ func CreateJWTString(stringToIncludeInJWT string) (string, error) {
 		return "", err
 	}
 	return tokenString, err
-}
-
-func hasDuplicate(stringToCheck string) bool {
-	stringToCheck = strings.Replace(stringToCheck, "\n", "", -1)
-	stringToCheck = strings.Replace(stringToCheck, "\r", "", -1)
-	stringToCheck = strings.TrimPrefix(stringToCheck, "{")
-	stringToCheck = strings.TrimSuffix(stringToCheck, "}")
-	stringToCheck = removeAllWhitespace(stringToCheck)
-	stringToCheck = strings.Replace(stringToCheck, ",", ":", -1)
-
-	jsonStrs := strings.Split(stringToCheck, ":")
-
-	keysMap := make(map[string]bool)
-	for i, str := range jsonStrs {
-		if i%2 == 0 {
-			util.GetLogger().Infoln(str)
-			if keysMap[str] {
-				return true
-			}
-			keysMap[str] = true
-		}
-	}
-	return false
-}
-
-func removeAllWhitespace(str string) string {
-	return strings.Map(func(r rune) rune {
-		if unicode.IsSpace(r) {
-			return -1 // it deletes whitespace symbols (may be even \n and \r)
-		}
-		return r
-	}, str)
 }
