@@ -146,7 +146,7 @@ func (h *user) Authenticate(c echo.Context) error {
 		return err
 	}
 
-	if len(removeAllWhitespace(string(b))) != len(removeAllWhitespace(string(marshaledUserForCheck))) {
+	if len(b) != len(marshaledUserForCheck) {
 		util.GetLogger().Infoln("length not equal")
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return nil
@@ -385,9 +385,8 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 		return err
 	}
 
-	if len(removeAllWhitespace(string(b))) != len(removeAllWhitespace(string(marshaledWithdrawalForCheck))) {
+	if len(b) != len(marshaledWithdrawalForCheck) {
 		util.GetLogger().Infoln("length not equal")
-
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
@@ -438,7 +437,7 @@ func (h *user) HandleStartup(serverAddress string, wg *sync.WaitGroup) error {
 				login := ord.Username
 				var previousAccrualOrder domain.AccrualOrder
 				var accrualOrder domain.AccrualOrder
-				for {
+					for {
 					util.GetLogger().Infoln("requested", accrualWithEndpoint)
 					resp, err := http.Get(accrualWithEndpoint)
 					if err != nil {

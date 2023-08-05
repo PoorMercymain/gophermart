@@ -7,7 +7,7 @@ import (
 )
 
 type Withdrawal struct {
-	OrderNumber      string           `json:"order"`
+	OrderNumber      string     `json:"order"`
 	WithdrawalAmount WithdrawalAmount `json:"sum"`
 }
 
@@ -16,10 +16,10 @@ type WithdrawalAmount struct {
 }
 
 type WithdrawalOutput struct {
-	OrderNumber       string           `json:"order"`
-	WithdrawnPoints   WithdrawalAmount `json:"sum"`
-	ProcessedAt       time.Time        `json:"-"`
-	ProcessedAtString string           `json:"processed_at"`
+	OrderNumber string `json:"order"`
+	WithdrawnPoints WithdrawalAmount `json:"sum"`
+	ProcessedAt time.Time `json:"-"`
+	ProcessedAtString string `json:"processed_at"`
 }
 
 func (w *WithdrawalAmount) UnmarshalJSON(data []byte) error {

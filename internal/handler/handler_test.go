@@ -39,7 +39,7 @@ func testRouter(t *testing.T) *echo.Echo {
 	var wg sync.WaitGroup
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
-	e.POST("/api/user/orders", uh.AddOrder(&wg), middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""), middleware.AddTestingToCtx())
+	e.POST("/api/user/orders", uh.AddOrder(&wg), middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""),middleware.AddTestingToCtx())
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader())
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader())
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader())
