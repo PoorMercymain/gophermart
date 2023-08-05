@@ -35,7 +35,7 @@ func (h *user) Register(c echo.Context) error {
 		return nil
 	}
 
-	var user domain.User
+	var user, userForCheck domain.User
 
 	defer c.Request().Body.Close()
 
@@ -47,8 +47,23 @@ func (h *user) Register(c echo.Context) error {
 	util.GetLogger().Infoln(string(b))
 
 	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
-	if hasDuplicate(string(b)) {
-		util.GetLogger().Infoln("duplicate found")
+
+	err = json.Unmarshal(b, &userForCheck)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+
+	marshaledUserForCheck, err := json.Marshal(userForCheck)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	if len(removeAllWhitespace(string(b))) != len(removeAllWhitespace(string(marshaledUserForCheck))) {
+		util.GetLogger().Infoln("length not equal") // if length not equal, it means that there was something redundant in request (duplicate element)
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
@@ -105,7 +120,7 @@ func (h *user) Authenticate(c echo.Context) error {
 		return nil
 	}
 
-	var user domain.User
+	var user, userForCheck domain.User
 
 	defer c.Request().Body.Close()
 
@@ -117,8 +132,22 @@ func (h *user) Authenticate(c echo.Context) error {
 
 	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
 
-	if hasDuplicate(string(b)) {
-		util.GetLogger().Infoln("duplicate found")
+	err = json.Unmarshal(b, &userForCheck)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return err
+	}
+
+	marshaledUserForCheck, err := json.Marshal(userForCheck)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	if len(b) != len(marshaledUserForCheck) {
+		util.GetLogger().Infoln("length not equal")
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return nil
 	}
@@ -340,13 +369,27 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 
 	c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
 
-	if hasDuplicate(string(b)) {
+	var withdrawal, withdrawalForCheck domain.Withdrawal
+
+	err = json.Unmarshal(b, &withdrawalForCheck)
+	if err != nil {
+		util.GetLogger().Infoln(err)
 		c.Response().WriteHeader(http.StatusBadRequest)
-		util.GetLogger().Infoln("duplicate found")
-		return nil
+		return err
 	}
 
-	var withdrawal domain.Withdrawal
+	marshaledWithdrawalForCheck, err := json.Marshal(withdrawalForCheck)
+	if err != nil {
+		util.GetLogger().Infoln(err)
+		c.Response().WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	if len(b) != len(marshaledWithdrawalForCheck) {
+		util.GetLogger().Infoln("length not equal")
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
+	}
 
 	d := json.NewDecoder(c.Request().Body)
 	d.DisallowUnknownFields()
@@ -556,29 +599,6 @@ func CreateJWTString(stringToIncludeInJWT string) (string, error) {
 		return "", err
 	}
 	return tokenString, err
-}
-
-func hasDuplicate(stringToCheck string) bool {
-	stringToCheck = strings.Replace(stringToCheck, "\n", "", -1)
-	stringToCheck = strings.Replace(stringToCheck, "\r", "", -1)
-	stringToCheck = strings.TrimPrefix(stringToCheck, "{")
-	stringToCheck = strings.TrimSuffix(stringToCheck, "}")
-	stringToCheck = removeAllWhitespace(stringToCheck)
-	stringToCheck = strings.Replace(stringToCheck, ",", ":", -1)
-
-	jsonStrs := strings.Split(stringToCheck, ":")
-
-	keysMap := make(map[string]bool)
-	for i, str := range jsonStrs {
-		if i % 2 == 0 {
-			util.GetLogger().Infoln(str)
-			if keysMap[str] {
-				return true
-			}
-			keysMap[str] = true
-		}
-	}
-	return false
 }
 
 func removeAllWhitespace(str string) string {
