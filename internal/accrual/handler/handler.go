@@ -90,6 +90,17 @@ func (h *StorageHandler) ProcessPostOrdersRequest(c echo.Context) (err error) {
 		return
 	}
 
+	bufCopy := bytes.Clone(buf.Bytes())
+	reader := bytes.NewReader(bufCopy)
+
+	err = util.CheckDuplicatesInJSON(json.NewDecoder(reader), nil)
+	if err != nil {
+		util.GetLogger().Infoln("json with duplicate properties")
+		err = domain.ErrorRequestFormatIncorrect
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	err = json.Unmarshal(buf.Bytes(), &order)
 	if err != nil {
 		util.GetLogger().Infoln(err)
@@ -161,6 +172,17 @@ func (h *StorageHandler) ProcessPostGoodsRequest(c echo.Context) (err error) {
 	_, err = buf.ReadFrom(c.Request().Body)
 
 	if err != nil {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	bufCopy := bytes.Clone(buf.Bytes())
+	reader := bytes.NewReader(bufCopy)
+
+	err = util.CheckDuplicatesInJSON(json.NewDecoder(reader), nil)
+	if err != nil {
+		util.GetLogger().Infoln("json with duplicate properties")
+		err = domain.ErrorRequestFormatIncorrect
 		c.Response().WriteHeader(http.StatusBadRequest)
 		return
 	}
