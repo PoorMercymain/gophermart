@@ -3,8 +3,8 @@ package domain
 import "encoding/json"
 
 type AccrualOrder struct {
-	Order   string  `json:"order"`
-	Status  string  `json:"status"`
+	Order   string        `json:"order"`
+	Status  string        `json:"status"`
 	Accrual AccrualAmount `json:"accrual"`
 }
 
@@ -24,6 +24,6 @@ func (a *AccrualAmount) UnmarshalJSON(data []byte) error {
 }
 
 type AccrualOrderWithUsername struct {
-	Accrual AccrualOrder
+	Accrual  AccrualOrder
 	Username string
 }

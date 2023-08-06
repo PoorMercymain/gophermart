@@ -181,6 +181,14 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 
 		orderN := scanner.Text()
 
+		for _, orderNumSymbol := range orderN {
+			_, err := strconv.Atoi(string(orderNumSymbol))
+			if err != nil {
+				c.Response().WriteHeader(http.StatusBadRequest)
+				return err
+			}
+		}
+
 		err := h.srv.AddOrder(c.Request().Context(), orderN)
 		if errors.Is(err, domain.ErrorAlreadyRegistered) {
 			c.Response().WriteHeader(http.StatusOK)
@@ -370,6 +378,19 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 	if err := d.Decode(&withdrawal); err != nil {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		util.GetLogger().Infoln(err)
+		return err
+	}
+
+	for _, orderNumSymbol := range withdrawal.OrderNumber {
+		_, err := strconv.Atoi(string(orderNumSymbol))
+		if err != nil {
+			c.Response().WriteHeader(http.StatusBadRequest)
+			return err
+		}
+	}
+
+	if withdrawal.WithdrawalAmount.Withdrawal < 0 {
+		c.Response().WriteHeader(http.StatusBadRequest)
 		return err
 	}
 
