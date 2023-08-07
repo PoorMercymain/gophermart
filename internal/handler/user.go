@@ -259,7 +259,7 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 					} else if resp.StatusCode == http.StatusNoContent {
 						util.GetLogger().Infoln("order was", orderN, "not registred by accrual service")
 					}
-					time.Sleep(time.Second * 3)
+					time.Sleep(time.Second * 2)
 				}
 			}()
 		}
@@ -474,7 +474,7 @@ func (h *user) HandleStartup(serverAddress string, wg *sync.WaitGroup) error {
 					} else if resp.StatusCode == http.StatusNoContent {
 						util.GetLogger().Infoln("order", ord.Accrual.Order, "was not registred by accrual service")
 					}
-					time.Sleep(time.Second * 3)
+					time.Sleep(time.Second * 2)
 				}
 			}()
 		}
