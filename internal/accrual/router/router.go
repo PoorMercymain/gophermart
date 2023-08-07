@@ -15,7 +15,7 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/accrual/middleware"
 )
 
-const RequestsPerSecond = 0.5
+const RequestsPerSecond = 10
 const RequestsAtSameTime = 10
 const RetryAfterInterval = 60
 
