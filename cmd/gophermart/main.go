@@ -153,8 +153,19 @@ func main() {
 
 	<-sigChan
 	util.GetLogger().Infoln("got signal")
+	wgDone := make(chan struct{}, 1)
 
-	wg.Wait()
+	go func () {
+		wg.Wait()
+		wgDone <- struct{}{}
+	}()
+
+	select {
+	case <-wgDone:
+		util.GetLogger().Infoln("wg were done")
+	case <-time.After(time.Second * 5):
+		util.GetLogger().Infoln("wg were not done")
+	}
 
 	util.GetLogger().Infoln("дальше wg")
 	start := time.Now()
