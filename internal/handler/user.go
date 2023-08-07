@@ -213,6 +213,9 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 				login := c.Request().Context().Value(domain.Key("login")).(string)
 				var previousAccrualOrder domain.AccrualOrder
 				var accrualOrder domain.AccrualOrder
+
+				util.GetLogger().Infoln(accrualOrder)
+
 				for {
 					util.GetLogger().Infoln("requested", accrualWithEndpoint)
 					resp, err := http.Get(accrualWithEndpoint)
@@ -237,6 +240,7 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 					if body != nil {
 						err = json.Unmarshal(body, &accrualOrder)
 						if err != nil {
+							util.GetLogger().Infoln(string(body))
 							util.GetLogger().Infoln(err)
 							wg.Done()
 							return
@@ -258,6 +262,7 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 						}
 					} else if resp.StatusCode == http.StatusNoContent {
 						util.GetLogger().Infoln("order was", orderN, "not registred by accrual service")
+						util.GetLogger().Infoln(accrualOrder)
 					}
 					time.Sleep(time.Second * 2)
 				}
@@ -429,6 +434,9 @@ func (h *user) HandleStartup(serverAddress string, wg *sync.WaitGroup) error {
 				login := ord.Username
 				var previousAccrualOrder domain.AccrualOrder
 				var accrualOrder domain.AccrualOrder
+
+				util.GetLogger().Infoln(accrualOrder)
+
 				for {
 					util.GetLogger().Infoln("requested", accrualWithEndpoint)
 					resp, err := http.Get(accrualWithEndpoint)
@@ -456,6 +464,9 @@ func (h *user) HandleStartup(serverAddress string, wg *sync.WaitGroup) error {
 							wg.Done()
 							return
 						}
+
+						util.GetLogger().Infoln(accrualOrder)
+
 						if accrualOrder.Status != previousAccrualOrder.Status {
 							previousAccrualOrder = accrualOrder
 							cont := context.WithValue(context.Background(), domain.Key("login"), login)
@@ -473,6 +484,7 @@ func (h *user) HandleStartup(serverAddress string, wg *sync.WaitGroup) error {
 						}
 					} else if resp.StatusCode == http.StatusNoContent {
 						util.GetLogger().Infoln("order", ord.Accrual.Order, "was not registred by accrual service")
+						util.GetLogger().Infoln(accrualOrder)
 					}
 					time.Sleep(time.Second * 2)
 				}

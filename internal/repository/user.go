@@ -143,9 +143,7 @@ func (r *user) ReadOrders(ctx context.Context) ([]domain.Order, error) {
 	for rows.Next() {
 		rows.Scan(&order.Number, &order.Status, &order.UploadedAt, &accrual)
 		util.GetLogger().Infoln("пам-пам", order, accrual)
-		if accrual != 0 {
-			order.Accrual.Money = accrual
-		}
+		order.Accrual.Money = accrual
 		order.UploadedAtString = order.UploadedAt.Format(time.RFC3339)
 		orders = append(orders, order)
 	}
