@@ -180,6 +180,10 @@ func (h *user) AddOrder(wg *sync.WaitGroup) echo.HandlerFunc {
 		defer c.Request().Body.Close()
 
 		orderN := scanner.Text()
+		if orderN == "" {
+			c.Response().WriteHeader(http.StatusBadRequest)
+			return nil
+		}
 
 		for _, orderNumSymbol := range orderN {
 			_, err := strconv.Atoi(string(orderNumSymbol))
@@ -382,6 +386,11 @@ func (h *user) AddWithdrawal(c echo.Context) error {
 		c.Response().WriteHeader(http.StatusBadRequest)
 		util.GetLogger().Infoln(err)
 		return err
+	}
+
+	if withdrawal.OrderNumber == "" {
+		c.Response().WriteHeader(http.StatusBadRequest)
+		return nil
 	}
 
 	for _, orderNumSymbol := range withdrawal.OrderNumber {
