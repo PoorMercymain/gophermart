@@ -55,7 +55,9 @@ func NewDBStorage(DSN string) (storage interfaces.Storage, err error) {
 		}
 	}
 
-	err = goose.Run("up", pg, "./pkg/migrations_accrual")
+	const migrationsPath = "./internal/accrual/storage/migrations"
+
+	err = goose.Run("up", pg, migrationsPath)
 	if err != nil {
 		util.GetLogger().Infoln(err)
 		return
