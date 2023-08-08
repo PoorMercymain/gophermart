@@ -36,11 +36,11 @@ func testRouter(t *testing.T) *echo.Echo {
 	testHashStr := string(testHash)
 	testDomainOrder := make([]domain.Order, 0)
 	tdo := domain.Order{
-			Number: "573956",
-			Status: "PROCESSED",
-			Accrual: domain.Accrual{Money: 1000},
-			UploadedAt: time.Now(),
-			UploadedAtString: time.Now().Format(time.RFC3339),
+		Number:           "573956",
+		Status:           "PROCESSED",
+		Accrual:          domain.Accrual{Money: 1000},
+		UploadedAt:       time.Now(),
+		UploadedAtString: time.Now().Format(time.RFC3339),
 	}
 	testDomainOrder = append(testDomainOrder, tdo)
 
