@@ -16,38 +16,82 @@ import (
 func CheckAuth(ur domain.UserRepository) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			var jwtStr string
+			util.GetLogger().Infoln("")
 			if _, ok := c.Request().Header["Authorization"]; ok {
-				c.Response().WriteHeader(http.StatusUnauthorized) // authorization with header is forbidden
-				return nil
+				jwtStr = c.Request().Header.Get("Authorization")
+				if jwtStr == "" {
+					c.Response().WriteHeader(http.StatusUnauthorized) // authorization with header is forbidden
+					return nil
+				}
 			}
 
 			cookie, err := c.Request().Cookie("jwt")
-			if err != nil && !errors.Is(err, http.ErrNoCookie) {
-				c.Response().WriteHeader(http.StatusBadRequest)
-				return err
-			} else if errors.Is(err, http.ErrNoCookie) {
-				c.Response().WriteHeader(http.StatusUnauthorized)
-				return err
+			if jwtStr == "" {
+				if err != nil && !errors.Is(err, http.ErrNoCookie) {
+					c.Response().WriteHeader(http.StatusBadRequest)
+					return err
+				} else if errors.Is(err, http.ErrNoCookie) {
+					c.Response().WriteHeader(http.StatusUnauthorized)
+					return err
+				}
 			}
 
-			cookieString := cookie.Value
+			var user domain.User
 
-			user, err := GetUserFromJWT(cookieString)
-			if err != nil {
-				c.Response().WriteHeader(http.StatusBadRequest)
-				return err
+			util.GetLogger().Infoln("")
+			if err == nil {
+				util.GetLogger().Infoln("")
+				cookieString := cookie.Value
+
+				if jwtStr != "" {
+					util.GetLogger().Infoln("jwtStr", jwtStr)
+					util.GetLogger().Infoln("cookieStr", cookieString)
+					if jwtStr != cookieString {
+						c.Response().WriteHeader(http.StatusConflict)
+						return errors.New("cookie and authorization header are not equal")
+					}
+				}
+
+				user, err = GetUserFromJWT(cookieString)
+				if err != nil {
+					c.Response().WriteHeader(http.StatusBadRequest)
+					return err
+				}
+
+				passwordHash, err := ur.GetPasswordHash(c.Request().Context(), user.Login)
+				if err != nil {
+					c.Response().WriteHeader(http.StatusUnauthorized)
+					util.GetLogger().Infoln(err)
+					return err
+				}
+
+				if passwordHash != user.Password {
+					c.Response().WriteHeader(http.StatusUnauthorized)
+					return errors.New("password isn`t correct")
+				}
+
+				util.GetLogger().Infoln(jwtStr)
 			}
 
-			passwordHash, err := ur.GetPasswordHash(c.Request().Context(), user.Login)
-			if err != nil {
-				c.Response().WriteHeader(http.StatusUnauthorized)
-				util.LogInfoln(err)
-				return err
-			}
+			if jwtStr != "" {
+				usr, err := GetUserFromJWT(jwtStr)
+				if err != nil {
+					c.Response().WriteHeader(http.StatusBadRequest)
+					return err
+				}
 
-			if passwordHash != user.Password {
-				c.Response().WriteHeader(http.StatusUnauthorized)
-				return errors.New("password isn`t correct")
+				passwordHash, err := ur.GetPasswordHash(c.Request().Context(), usr.Login)
+				if err != nil {
+					c.Response().WriteHeader(http.StatusUnauthorized)
+					util.GetLogger().Infoln(err)
+					return err
+				}
+
+				if passwordHash != usr.Password {
+					c.Response().WriteHeader(http.StatusUnauthorized)
+					return errors.New("password isn`t correct")
+				}
 			}
 
 			ctx := context.WithValue(c.Request().Context(), domain.Key("login"), user.Login)
@@ -66,21 +110,21 @@ func GetUserFromJWT(tokenString string) (domain.User, error) {
 		return []byte("ultrasecretkey"), nil
 	})
 	if err != nil {
-		util.LogInfoln("Couldn't parse", err)
+		util.GetLogger().Infoln("Couldn't parse", err)
 		return domain.User{}, err
 	}
 
 	if !token.Valid {
-		util.LogInfoln("Token isn`t valid")
+		util.GetLogger().Infoln("Token isn`t valid")
 		return domain.User{}, errors.New("invalid token")
 	}
 
-	util.LogInfoln("Token is valid")
-	util.LogInfoln(claims["str"])
+	util.GetLogger().Infoln("Token is valid")
+	util.GetLogger().Infoln(claims["str"])
 
 	userSlice := strings.Split(claims["str"].(string), " ")
 	if len(userSlice) < 1 {
-		util.LogInfoln("incorrect jwt")
+		util.GetLogger().Infoln("incorrect jwt")
 		return domain.User{}, errors.New("incorrect jwt")
 	}
 

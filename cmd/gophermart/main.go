@@ -155,7 +155,7 @@ func main() {
 	util.GetLogger().Infoln("got signal")
 	wgDone := make(chan struct{}, 1)
 
-	go func () {
+	go func() {
 		wg.Wait()
 		wgDone <- struct{}{}
 	}()
