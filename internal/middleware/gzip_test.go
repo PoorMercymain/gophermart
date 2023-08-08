@@ -56,7 +56,9 @@ func TestUseGzipReader(t *testing.T) {
 	resp, err := ts.Client().Do(req)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
+	resp.Body.Close()
 
 	resp, err = ts.Client().Do(req2)
 	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	resp.Body.Close()
 }

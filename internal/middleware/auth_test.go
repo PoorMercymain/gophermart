@@ -70,4 +70,5 @@ func TestAuth(t *testing.T) {
 	util.GetLogger().Infoln("")
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
+	resp.Body.Close()
 }
