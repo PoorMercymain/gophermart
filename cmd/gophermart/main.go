@@ -45,7 +45,9 @@ func NewPG(DSN string) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	err = goose.Run("up", pg, "./pkg/migrations")
+	const migrationsPath = "./internal/repository/migrations"
+
+	err = goose.Run("up", pg, migrationsPath)
 	if err != nil {
 		util.GetLogger().Infoln(err)
 		return nil, err
