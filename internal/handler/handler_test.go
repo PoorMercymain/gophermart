@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -14,6 +15,7 @@ import (
 	"github.com/PoorMercymain/gophermart/pkg/util"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -92,4 +94,35 @@ func TestRouter(t *testing.T) {
 		resp := request(t, ts, testCase.code, testCase.method, testCase.body, testCase.endpoint)
 		resp.Body.Close()
 	}
+}
+
+func TestUtils(t *testing.T) {
+	r, err := http.NewRequest("POST", "", bytes.NewReader([]byte("")))
+	require.NoError(t, err)
+	r.Header.Set("Content-Type", "application/json")
+	isCorrect := IsJSONContentTypeCorrect(r)
+	assert.Equal(t, true, isCorrect)
+	r.Header.Set("Content-Type", "text/plain")
+	isCorrect = IsJSONContentTypeCorrect(r)
+	assert.Equal(t, false, isCorrect)
+	isCorrect = IsPlaintextContentTypeCorrect(r)
+	assert.Equal(t, true, isCorrect)
+	r.Header.Set("Content-Type", "application/json")
+	isCorrect = IsPlaintextContentTypeCorrect(r)
+	assert.Equal(t, false, isCorrect)
+}
+
+func TestStartup(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockUserRepository(ctrl)
+	us := service.NewUser(mockRepo)
+	uh := NewUser(us)
+
+	mockRepo.EXPECT().GetUnprocessedBatch(gomock.Any(), gomock.Any()).Return(make([]domain.AccrualOrderWithUsername, 0), nil).AnyTimes()
+
+	var wg sync.WaitGroup
+	err := uh.HandleStartup("", &wg)
+	assert.NoError(t, err)
 }
