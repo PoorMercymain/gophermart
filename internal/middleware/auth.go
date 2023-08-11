@@ -20,12 +20,12 @@ func CheckAuth(ur domain.UserRepository) echo.MiddlewareFunc {
 			util.GetLogger().Infoln("")
 			if _, ok := c.Request().Header["Authorization"]; ok {
 				jwtStr = c.Request().Header.Get("Authorization")
+
 				jwtStrSplitted := strings.Split(jwtStr, "Bearer ")
-				if len(jwtStrSplitted) == 1 {
-					c.Response().WriteHeader(http.StatusUnauthorized) // authorization with header is forbidden
-					return nil
+				if len(jwtStrSplitted) > 1 {
+					jwtStr = jwtStrSplitted[1]
 				}
-				jwtStr = jwtStrSplitted[1]
+				
 				if jwtStr == "" {
 					c.Response().WriteHeader(http.StatusUnauthorized) // authorization with header is forbidden
 					return nil
