@@ -21,13 +21,10 @@ func CheckAuth(ur domain.UserRepository) echo.MiddlewareFunc {
 			if _, ok := c.Request().Header["Authorization"]; ok {
 				jwtStr = c.Request().Header.Get("Authorization")
 
-				jwtStrSplitted := strings.Split(jwtStr, "Bearer ")
-				if len(jwtStrSplitted) > 1 {
-					jwtStr = jwtStrSplitted[1]
-				}
-				
+				jwtStr = strings.TrimPrefix(jwtStr, "Bearer ")
+
 				if jwtStr == "" {
-					c.Response().WriteHeader(http.StatusUnauthorized) // authorization with header is forbidden
+					c.Response().WriteHeader(http.StatusUnauthorized)
 					return nil
 				}
 			}
@@ -54,7 +51,7 @@ func CheckAuth(ur domain.UserRepository) echo.MiddlewareFunc {
 					util.GetLogger().Infoln("jwtStr", jwtStr)
 					util.GetLogger().Infoln("cookieStr", cookieString)
 					if jwtStr != cookieString {
-						c.Response().WriteHeader(http.StatusConflict)
+						c.Response().WriteHeader(http.StatusUnauthorized)
 						return errors.New("cookie and authorization header are not equal")
 					}
 				}
