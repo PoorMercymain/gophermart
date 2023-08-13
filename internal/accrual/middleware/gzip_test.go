@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/PoorMercymain/gophermart/pkg/util"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,6 +17,7 @@ func TestUseGzipReader(t *testing.T) {
 	util.InitLogger()
 
 	e := echo.New()
+	e.Use(UseGzipReader())
 
 	ts := httptest.NewServer(e)
 	defer ts.Close()
@@ -51,7 +52,7 @@ func TestUseGzipReader(t *testing.T) {
 			ctx.Response().WriteHeader(http.StatusOK)
 			return nil
 		}
-	}, UseGzipReader())
+	})
 
 	resp, err := ts.Client().Do(req)
 	require.NoError(t, err)
@@ -79,4 +80,5 @@ func TestUseGzipReader(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	resp.Body.Close()
+
 }

@@ -12,4 +12,7 @@ func TestAccrualAmount(t *testing.T) {
 	err := testAccrualAmount.UnmarshalJSON([]byte("100.5"))
 	require.NoError(t, err)
 	require.NotEmpty(t, testAccrualAmount.Accrual)
+
+	err = testAccrualAmount.UnmarshalJSON([]byte("asdf"))
+	require.Error(t, err)
 }

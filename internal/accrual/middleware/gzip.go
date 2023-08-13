@@ -12,6 +12,7 @@ import (
 func UseGzipReader() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+
 			if len(c.Request().Header.Values("Content-Encoding")) == 0 {
 				return next(c)
 			}
@@ -19,8 +20,9 @@ func UseGzipReader() echo.MiddlewareFunc {
 				if headerValue == "gzip" {
 					break
 				}
-				util.GetLogger().Infoln(i, len(c.Request().Header.Values("Content-Type"))-1)
-				if i == (len(c.Request().Header.Values("Content-Type")) - 1) {
+				util.LogInfoln(i, (len(c.Request().Header.Values("Content-Encoding")) - 1))
+				if i == (len(c.Request().Header.Values("Content-Encoding")) - 1) {
+					util.GetLogger().Infoln("no gzip")
 					return next(c)
 				}
 			}

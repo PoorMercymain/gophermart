@@ -10,6 +10,7 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/domain/mocks"
 	"github.com/PoorMercymain/gophermart/internal/handler"
 	"github.com/PoorMercymain/gophermart/pkg/util"
+
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/require"
@@ -57,8 +58,6 @@ func TestAuth(t *testing.T) {
 	jwtStr, err := handler.CreateJWTString(usr.Login + " " + usr.Password)
 	require.NoError(t, err)
 
-	req.Header.Set("Authorization", jwtStr)
-
 	mockRepo.EXPECT().GetPasswordHash(gomock.Any(), gomock.Any()).Return(testHashStr, nil)
 
 	e.POST("/test", func(ctx echo.Context) error {
@@ -69,6 +68,46 @@ func TestAuth(t *testing.T) {
 	resp, err := ts.Client().Do(req)
 	util.GetLogger().Infoln("")
 	require.NoError(t, err)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
+
+	req.Header.Set("Authorization", jwtStr)
+
+	resp, err = ts.Client().Do(req)
+	util.GetLogger().Infoln("")
+	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 	resp.Body.Close()
+
+	req.Header.Set("Authorization", "")
+	resp, err = ts.Client().Do(req)
+	util.GetLogger().Infoln("")
+	require.NoError(t, err)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
+
+	cookie := &http.Cookie{
+		Name:   "jwt",
+		Value:  "",
+		MaxAge: 300,
+	}
+	req.AddCookie(cookie)
+
+	req.Header.Set("Authorization", jwtStr)
+
+	resp, err = ts.Client().Do(req)
+	util.GetLogger().Infoln("")
+	require.NoError(t, err)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
+
+	req.Header.Del("Authorization")
+	req.AddCookie(cookie)
+
+	resp, err = ts.Client().Do(req)
+	util.GetLogger().Infoln("")
+	require.NoError(t, err)
+	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	resp.Body.Close()
+
 }

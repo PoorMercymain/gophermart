@@ -16,4 +16,26 @@ func TestWithdrawal(t *testing.T) {
 
 	err = testWithdrawalAmount.UnmarshalJSON(marshaled)
 	require.NoError(t, err)
+
+	testWithdrawalAmount = WithdrawalAmount{Withdrawal: 1}
+
+	marshaled, err = testWithdrawalAmount.MarshalJSON()
+	require.NoError(t, err)
+	assert.NotEmpty(t, marshaled)
+
+	err = testWithdrawalAmount.UnmarshalJSON(marshaled)
+	require.NoError(t, err)
+
+	testWithdrawalAmount = WithdrawalAmount{Withdrawal: 110}
+
+	marshaled, err = testWithdrawalAmount.MarshalJSON()
+	require.NoError(t, err)
+	assert.NotEmpty(t, marshaled)
+
+	err = testWithdrawalAmount.UnmarshalJSON(marshaled)
+	require.NoError(t, err)
+
+	err = testWithdrawalAmount.UnmarshalJSON(nil)
+	require.Error(t, err)
+
 }
