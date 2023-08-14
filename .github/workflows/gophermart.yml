@@ -19,16 +19,27 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: praktikum
         options: >-
           --health-cmd pg_isready
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+          --user postgres
+
+      mongodb:
+        image: mongo:latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Create databases
+        run: |
+          apt update
+          apt install -y postgresql-client
+          export PGPASSWORD=${{secrets.PGPASSWORD}}
+          psql -h postgres -U postgres -c "CREATE DATABASE gophermart;"
+          psql -h postgres -U postgres -c "CREATE DATABASE accrual;"
 
       - name: Download autotests binaries
         uses: robinraju/release-downloader@v1.2
@@ -49,15 +60,29 @@ jobs:
           (cd cmd/gophermart && go build -buildvcs=false -o gophermart)
           (cd cmd/accrual && go build -buildvcs=false -o accrual)
 
-      - name: Test
+      - name: Gophermart Test
         run: |
+          export ACCRUAL_PORT=$(random unused-port)
+          while [ "$ACCRUAL_PORT" -eq 8080 ]; do
+            export ACCRUAL_PORT=$(random unused-port)
+          done
+          echo $ACCRUAL_PORT
+          export ACCRUAL_ADDRESS="http://localhost:$ACCRUAL_PORT"
+          echo $ACCRUAL_ADDRESS;
           gophermarttest \
             -test.v -test.run=^TestGophermart$ \
             -gophermart-binary-path=cmd/gophermart/gophermart \
             -gophermart-host=localhost \
             -gophermart-port=8080 \
-            -gophermart-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable" \
+            -gophermart-database-uri="postgresql://postgres:postgres@postgres/gophermart?sslmode=disable" \
             -accrual-binary-path=cmd/accrual/accrual \
             -accrual-host=localhost \
-            -accrual-port=$(random unused-port) \
-            -accrual-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable"
+            -accrual-port="$ACCRUAL_PORT" \
+            -accrual-database-uri="postgresql://postgres:postgres@postgres/accrual?sslmode=disable"
+
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: logfile.log

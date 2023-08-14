@@ -1,3 +1,56 @@
+[![gophermart](https://github.com/PoorMercymain/gophermart/actions/workflows/gophermart.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/gophermart.yml) [![go vet test](https://github.com/PoorMercymain/gophermart/actions/workflows/statictest.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/statictest.yml) [![CI](https://github.com/PoorMercymain/gophermart/actions/workflows/blank.yml/badge.svg?branch=graceful-shutdown-accrual)](https://github.com/PoorMercymain/gophermart/actions/workflows/blank.yml) ![Go Coverage](https://github.com/PoorMercymain/gophermart/wiki/coverage.svg)
+
+# Как запускать (docker-compose)
+Запустить Docker, написать env файл (образец, который также можно использовать, переименовав его в .env - .env.example), после чего в терминале в корневой директории проекта выполнить команду
+```
+docker-compose up 
+```
+# Как запускать (не через docker-compose)
+В терминале в корневой директории запустить gophermart
+```
+go run .\cmd\gophermart\main.go
+```
+и accrual
+```
+go run .\cmd\accrual\main.go
+```
+Для запуска могут быть использованы флаги и переменные окружения:
+
+```
+URI для подключения к postgres:
+флаг -d
+переменная окружения DATABASE_URI
+пример: -d="host=localhost dbname=gophermart-postgres user=gophermart-postgres password=gophermart-postgres port=3000 sslmode=disable"
+
+Адрес запуска:
+флаг -a
+переменная окружения RUN_ADDRESS
+пример: -a="localhost:8081"
+```
+У gophermart есть дополнительные флаги и переменные окружения:
+```
+URI mongo (для локального запуска без docker-compose ОБЯЗАТЕЛЬНО нужно указать его, т.к. значение по умолчанию предусматривает либо запуск через docker-compose, либо через actions на github):
+флаг -m
+переменная окружения MONGO_URI
+пример: -m="mongodb://localhost:27017"
+
+Адрес accrual:
+флаг -c
+переменная окружения ACCRUAL_ADDRESS
+пример: -c="http://localhost:8085"
+```
+
+# Как обновить моки слоя для работы с БД gophermart`а
+В корневой директории проекта в терминале прописываем
+```
+go generate ./...
+```
+# Как запустить тесты
+Запускаем тесты в терминале корневой директории
+```
+go test ./... -v --count=1
+```
+
 # go-musthave-group-diploma-tpl
 
 Шаблон репозитория для группового дипломного проекта курса "Go-разработчик"

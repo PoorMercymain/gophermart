@@ -1,0 +1,2757 @@
+{
+	"info": {
+		"_postman_id": "c67d1935-3b40-40ad-b35e-de56a43628f6",
+		"name": "Gophermart_tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Accrual",
+			"item": [
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get order w/ correct number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Get registered order\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Get unregistered order\",function(){",
+											"    pm.response.to.have.status(204)",
+											"})",
+											"pm.test(\"Service overloaded\",function(){",
+											"    pm.response.to.have.status(429)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders/{{order_correct}}",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders",
+										"{{order_correct}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get order w/ incorrect number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Get registered order\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Get unregistered order\",function(){",
+											"    pm.response.to.have.status(204)",
+											"})",
+											"pm.test(\"Service overloaded\",function(){",
+											"    pm.response.to.have.status(429)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders/{{order_incorrect}}",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders",
+										"{{order_incorrect}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/out request body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ incorrect number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_incorrect}}\",\n    \"goods\": [\n        {\n            \"description\": \"Чайник Bork\",\n            \"price\": 100\n        },\n        {\n            \"description\": \"Чайник MyBork\",\n            \"price\": 700\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ duplicate properties",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_correct}}\",\n    \"order\": \"{{order_incorrect}}\",\n    \"goods\": [\n        {\n            \"description\": \"Чайник Bork\",\n            \"price\": 100\n        },\n        {\n            \"description\": \"Чайник MyBork\",\n            \"price\": 700\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ correct data",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_correct}}\",\n    \"goods\": [\n        {\n            \"description\": \"Чайник Bork\",\n            \"price\": 100\n        },\n        {\n            \"description\": \"Чайник MyBork\",\n            \"price\": 700\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ correct data Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_1}}\",\n    \"goods\": [\n        {\n            \"description\": \"Foo Bosch\",\n            \"price\": 1000\n        },\n        {\n            \"description\": \"Чайник MyBork\",\n            \"price\": 700\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ correct data Copy 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_2}}\",\n    \"goods\": []\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ correct data Copy 3",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_3}}\",\n    \"goods\": [\n        {\n            \"description\": \"Чайник Bosch\",\n            \"price\": 200\n        },\n        {\n            \"description\": \"Чайник MyBork\",\n            \"price\": 700\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ correct data Copy 4",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_4}}\",\n     \"goods\": [\n        {\n            \"description\": \"Посудомойка Bosch\",\n            \"price\": 2003\n        },\n        {\n            \"description\": \"Чайник MyBork\",\n            \"price\": 7000\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ correct data Copy 5",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Order is already processing\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": \"{{order_5}}\",\n    \"goods\": [\n        {\n            \"description\": \"Чайник Bosch\",\n            \"price\": 20\n        },\n        {\n            \"description\": \"Чайник MyBork\",\n            \"price\": 70\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/orders",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Goods",
+					"item": [
+						{
+							"name": "Create goods w/out body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Goods accepted\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Goods match key is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/goods",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"goods"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create goods w/ wrong reward_type",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Goods accepted\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Goods match key is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"match\": \"MyBork\",\n    \"reward\": 100,\n    \"reward_type\": \"blablabla\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/goods",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"goods"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create goods w/ duplicate props",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Goods accepted\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Goods match key is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"match\": \"NewBork\",\n    \"match\": \"NoBork\",\n    \"reward\": 100,\n    \"reward_type\": \"pt\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/goods",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"goods"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create goods w/ correct body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Goods accepted\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Goods match key is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"match\": \"MyBork\",\n    \"reward\": 100,\n    \"reward_type\": \"pt\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/goods",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"goods"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create more goods",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Goods accepted\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Goods match key is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"match\": \"MyBork\",\n    \"reward\": 100,\n    \"reward_type\": \"pt\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{accrual_url}}/api/goods",
+									"protocol": "http",
+									"host": [
+										"{{accrual_url}}"
+									],
+									"path": [
+										"api",
+										"goods"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Gophermart",
+			"item": [
+				{
+					"name": "Register",
+					"item": [
+						{
+							"name": "User registration w/ correct request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User is registered and authenticated\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Login is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"login\": \"{{username}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/register",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User registration w/ duplicate props",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User is registered and authenticated\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Login is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"login\": \"{{username}}\",\r\n    \"login\": \"{{username}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/register",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User registration w/ extra props",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User is registered and authenticated\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Login is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"login\": \"{{username}}\",\r\n    \"foo\":\"bar\",\r\n    \"password\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/register",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User registration w/ missing props Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User is registered and authenticated\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Login is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"login\": \"{{username}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/register",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User registration w/out request body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User is registered and authenticated\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Login is already registered\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\\",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/register",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"register"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "User auth w/correct body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User authenticated\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Bad request format\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Password doesn't match login\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTEwNTc0OTcsIlVzZXJJRCI6MSwiVXNlcm5hbWUiOiLQodC10LrRgNC10YLQvdC-0LUg0YHQu9C-0LLQviJ9.ctML-IPEeQBL-2dsIzQKVE8-3tA8hBWxVSUwpcvEI8HblrsYPxG1MK6cZUkVEQ40irt4ikwKJ_7sXH31Im97k-iG4wwi0UwARxH7_L6fwk7iwoiXO3LtvRSu6S7ioB-Fcru6BBxfzJP_sC8rpJotF4j0Ial4x9Y_nP-t6ZSkNztKfk6XD-0LsmBnl0mqX7L6J2sKUCUExGTcp7zSrTXDClkcqYgTHlQtkOmPPB795cY_aJpMC2Ccj8xE9abbfpxGm4VANHTAoS4hfaCimTyqBd899d3RX0gCYq4wYYJvI9lTHs-YTYC5nCu_-M--DQcpfnoY56wOvP4_3tbtJ9_lcg",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"login\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/login",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User auth w/ duplicate props",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User authenticated\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Bad request format\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Password doesn't match login\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTEwNTc0OTcsIlVzZXJJRCI6MSwiVXNlcm5hbWUiOiLQodC10LrRgNC10YLQvdC-0LUg0YHQu9C-0LLQviJ9.ctML-IPEeQBL-2dsIzQKVE8-3tA8hBWxVSUwpcvEI8HblrsYPxG1MK6cZUkVEQ40irt4ikwKJ_7sXH31Im97k-iG4wwi0UwARxH7_L6fwk7iwoiXO3LtvRSu6S7ioB-Fcru6BBxfzJP_sC8rpJotF4j0Ial4x9Y_nP-t6ZSkNztKfk6XD-0LsmBnl0mqX7L6J2sKUCUExGTcp7zSrTXDClkcqYgTHlQtkOmPPB795cY_aJpMC2Ccj8xE9abbfpxGm4VANHTAoS4hfaCimTyqBd899d3RX0gCYq4wYYJvI9lTHs-YTYC5nCu_-M--DQcpfnoY56wOvP4_3tbtJ9_lcg",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"login\": \"{{username}}\",\n    \"login\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/login",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User auth w/ missing password",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User authenticated\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Bad request format\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Password doesn't match login\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTEwNTc0OTcsIlVzZXJJRCI6MSwiVXNlcm5hbWUiOiLQodC10LrRgNC10YLQvdC-0LUg0YHQu9C-0LLQviJ9.ctML-IPEeQBL-2dsIzQKVE8-3tA8hBWxVSUwpcvEI8HblrsYPxG1MK6cZUkVEQ40irt4ikwKJ_7sXH31Im97k-iG4wwi0UwARxH7_L6fwk7iwoiXO3LtvRSu6S7ioB-Fcru6BBxfzJP_sC8rpJotF4j0Ial4x9Y_nP-t6ZSkNztKfk6XD-0LsmBnl0mqX7L6J2sKUCUExGTcp7zSrTXDClkcqYgTHlQtkOmPPB795cY_aJpMC2Ccj8xE9abbfpxGm4VANHTAoS4hfaCimTyqBd899d3RX0gCYq4wYYJvI9lTHs-YTYC5nCu_-M--DQcpfnoY56wOvP4_3tbtJ9_lcg",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"login\": \"{{username}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/login",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User auth w/ mismatching login/pass",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User authenticated\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Bad request format\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Password doesn't match login\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTEwNTc0OTcsIlVzZXJJRCI6MSwiVXNlcm5hbWUiOiLQodC10LrRgNC10YLQvdC-0LUg0YHQu9C-0LLQviJ9.ctML-IPEeQBL-2dsIzQKVE8-3tA8hBWxVSUwpcvEI8HblrsYPxG1MK6cZUkVEQ40irt4ikwKJ_7sXH31Im97k-iG4wwi0UwARxH7_L6fwk7iwoiXO3LtvRSu6S7ioB-Fcru6BBxfzJP_sC8rpJotF4j0Ial4x9Y_nP-t6ZSkNztKfk6XD-0LsmBnl0mqX7L6J2sKUCUExGTcp7zSrTXDClkcqYgTHlQtkOmPPB795cY_aJpMC2Ccj8xE9abbfpxGm4VANHTAoS4hfaCimTyqBd899d3RX0gCYq4wYYJvI9lTHs-YTYC5nCu_-M--DQcpfnoY56wOvP4_3tbtJ9_lcg",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"login\": \"{{username}}\",\n    \"password\": \"whatever\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/login",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Create order no auth header",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{order_correct}}",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ correct body",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{order_correct}}",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ incorrect number",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{order_incorrect}}",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create order w/ wrong request fromat",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"order\":{{order_incorrect}}}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create another order",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "5785",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create another order Copy",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{order_1}}",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create another order Copy 2",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{order_2}}",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create another order Copy 3",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{order_3}}",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create another order Copy 4",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "5785",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create another order Copy 5",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();\r",
+											"const url = pm.request.url;\r",
+											"var callback = function(error, cookie){\r",
+											"if (error) {\r",
+											"        console.log(error);   \r",
+											"    }else {\r",
+											"        console.log(cookie)\r",
+											"    }\r",
+											"}\r",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJ1c2VyICQyYSQxMCRTVURCZjUwdmF3eE54NmxPRTVDZ0cuUjVoTTRreDN4cTFUaU9qSUhsLy4xY3lVVXVrdXBLLiJ9.juZz3dN_8uVTKP9zlvNXAKFygQRdJPv7hNiH6myiORU",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{order_5}}",
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get orders",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Order was created already by the user\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Order accepted\",function(){",
+											"    pm.response.to.have.status(202)",
+											"})",
+											"pm.test(\"Incorrect request format\",function(){",
+											"    pm.response.to.have.status(400)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Order was already created by another user\",function(){",
+											"    pm.response.to.have.status(409)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/orders",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Balance",
+					"item": [
+						{
+							"name": "Get balance",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Request processed succesfully\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/balance",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"balance"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Withdrawals",
+					"item": [
+						{
+							"name": "Get withdrawals",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Request processed succesfully\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"No withdrawals for the user\",function(){",
+											"    pm.response.to.have.status(204)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/withdrawals",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"withdrawals"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdraw",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Request processed succesfully\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Not enough balance\",function(){",
+											"    pm.response.to.have.status(402)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\t\"order\": \"{{order_correct}}\",\r\n    \"sum\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/balance/withdraw",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"balance",
+										"withdraw"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdraw too big a sum",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Request processed succesfully\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Not enough balance\",function(){",
+											"    pm.response.to.have.status(402)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\t\"order\": \"{{order_correct}}\",\r\n    \"sum\": 1000000\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/balance/withdraw",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"balance",
+										"withdraw"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdraw w/ incorrect order number",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Request processed succesfully\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Not enough balance\",function(){",
+											"    pm.response.to.have.status(402)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\t\"order\": \"{{order_incorrect}}\",\r\n    \"sum\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/balance/withdraw",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"balance",
+										"withdraw"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdraw w/out body",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cookieJar = pm.cookies.jar();",
+											"const url = pm.request.url;",
+											"var callback = function(error, cookie){",
+											"if (error) {",
+											"        console.log(error);   ",
+											"    }else {",
+											"        console.log(cookie)",
+											"    }",
+											"}",
+											"cookieJar.clear(pm.request.url, 'token', callback);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Request processed succesfully\",function(){",
+											"    pm.response.to.have.status(200)",
+											"})",
+											"pm.test(\"Not enough balance\",function(){",
+											"    pm.response.to.have.status(402)",
+											"})",
+											"pm.test(\"Incorrect order number\",function(){",
+											"    pm.response.to.have.status(422)",
+											"})",
+											"pm.test(\"User unauthorized\",function(){",
+											"    pm.response.to.have.status(401)",
+											"})",
+											"pm.test(\"Content-Type header is present\", () => {",
+											"  pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"pm.test(\"Content-Type header is application/json\", () => {",
+											"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{gophermart_url}}/api/user/balance/withdraw",
+									"protocol": "http",
+									"host": [
+										"{{gophermart_url}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"balance",
+										"withdraw"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
