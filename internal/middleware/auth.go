@@ -135,3 +135,15 @@ func GetUserFromJWT(tokenString string) (domain.User, error) {
 
 	return user, nil
 }
+
+func CheckAuthMock(ur domain.UserRepository) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+
+			ctx := context.WithValue(c.Request().Context(), domain.Key("login"), "login")
+
+			c.SetRequest(c.Request().WithContext(ctx))
+			return next(c)
+		}
+	}
+}

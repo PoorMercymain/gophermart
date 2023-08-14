@@ -15,6 +15,7 @@ import (
 	"github.com/PoorMercymain/gophermart/internal/middleware"
 	"github.com/PoorMercymain/gophermart/internal/service"
 	"github.com/PoorMercymain/gophermart/pkg/util"
+
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
@@ -52,14 +53,22 @@ func testRouter(t *testing.T) *echo.Echo {
 	mockRepo.EXPECT().ReadBalance(gomock.Any()).Return(domain.Balance{}, nil).AnyTimes()
 	mockRepo.EXPECT().AddWithdrawal(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 	mockRepo.EXPECT().ReadWithdrawals(gomock.Any()).Return(nil, nil).AnyTimes()
+	mockRepo.EXPECT().UpdateOrder(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 
 	us := service.NewUser(mockRepo)
 	uh := NewUser(us)
 
+	mockAccrualCommunicator := mocks.NewMockCommunicator(ctrl)
+
+	mockAccrualCommunicator.EXPECT().GetOrderAccrual(gomock.Any()).Return(&http.Response{
+		StatusCode: http.StatusAccepted,
+		Body:       io.NopCloser(strings.NewReader(`{"order":"111","status":"PROCESSED","accrual":100}`)),
+	}, nil).AnyTimes()
+
 	var wg sync.WaitGroup
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
-	e.POST("/api/user/orders", uh.AddOrder(&wg), middleware.UseGzipReader(), middleware.AddAccrualAddressToCtx(""), middleware.AddTestingToCtx())
+	e.POST("/api/user/orders", uh.AddOrder(&wg), middleware.UseGzipReader(), middleware.CheckAuthMock(mockRepo), middleware.AddAccrualCommunicatorToCtx(mockAccrualCommunicator))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader())
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader())
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader())
@@ -128,7 +137,7 @@ func TestRouter(t *testing.T) {
 	}
 
 	for _, testCase := range testTable {
-		util.GetLogger().Infoln("called", testCase.endpoint)
+		util.GetLogger().Infoln("called", testCase.endpoint, testCase.method)
 		resp := request(t, ts, testCase.code, testCase.method, testCase.content, testCase.body, testCase.endpoint)
 		resp.Body.Close()
 	}

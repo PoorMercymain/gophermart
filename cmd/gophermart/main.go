@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/PoorMercymain/gophermart/internal/domain"
 	"net/http"
 	"os"
 	"os/signal"
@@ -111,6 +112,8 @@ func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string, wg *sync
 	us := service.NewUser(ur)
 	uh := handler.NewUser(us)
 
+	ac := domain.NewAccrualCommunicator(accrualAddress)
+
 	util.GetLogger().Infoln("---------------------")
 	err = uh.HandleStartup(accrualAddress, wg)
 	if err != nil {
@@ -120,7 +123,7 @@ func router(pool *pgxpool.Pool, mongoURI string, accrualAddress string, wg *sync
 
 	e.POST("/api/user/register", uh.Register, middleware.UseGzipReader())
 	e.POST("/api/user/login", uh.Authenticate, middleware.UseGzipReader())
-	e.POST("/api/user/orders", uh.AddOrder(wg), middleware.UseGzipReader(), middleware.CheckAuth(ur), middleware.AddAccrualAddressToCtx(accrualAddress))
+	e.POST("/api/user/orders", uh.AddOrder(wg), middleware.UseGzipReader(), middleware.CheckAuth(ur), middleware.AddAccrualCommunicatorToCtx(ac))
 	e.GET("/api/user/orders", uh.ReadOrders, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.GET("/api/user/balance", uh.ReadBalance, middleware.UseGzipReader(), middleware.CheckAuth(ur))
 	e.POST("/api/user/balance/withdraw", uh.AddWithdrawal, middleware.UseGzipReader(), middleware.CheckAuth(ur))
